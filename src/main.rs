@@ -1,3 +1,7 @@
+mod lexer;
+mod token;
+mod utils;
+
 use std::fs;
 
 use clap::Parser;
