@@ -1,5 +1,4 @@
 mod lexer;
-mod replacer;
 mod string_reader;
 mod token;
 mod utils;
@@ -40,7 +39,9 @@ fn main() {
 
         if let Some(captues) = regex.captures(&file_name) {
             println!("{:?}", captues);
-            replacer::replace(String::new(), &cli.output);
+            let mut lex = lexer::Lexer::new(cli.output.clone());
+            let tokens = lex.tokenize();
+            println!("{:?}", tokens);
         }
     }
 }

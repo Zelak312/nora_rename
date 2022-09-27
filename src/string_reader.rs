@@ -12,16 +12,16 @@ impl StringReader {
         Self { pos: 0, chars }
     }
 
-    pub fn reached_end(&mut self) -> bool {
-        self.pos >= self.chars.len()
-    }
-
     pub fn advance(&mut self) {
         self.pos += 1;
     }
 
-    pub fn get_current(&mut self) -> char {
-        self.chars[self.pos]
+    pub fn get_current(&mut self) -> Option<char> {
+        if self.pos >= self.chars.len() {
+            return None;
+        }
+
+        Some(self.chars[self.pos])
     }
 }
 
