@@ -8,6 +8,12 @@ pub struct Lexer {
 }
 
 impl Lexer {
+    pub fn new(code: String) -> Self {
+        Self {
+            string_reader: StringReader::new(code),
+        }
+    }
+
     pub fn handle_number(&mut self, c: char) -> Token {
         let mut raw = c.to_string();
         self.string_reader.advance();
