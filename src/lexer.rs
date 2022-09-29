@@ -4,14 +4,14 @@ use super::utils;
 use std::fmt::{Debug, Formatter, Result};
 
 pub struct Lexer {
-    string_reader: ChainReader<char>,
+    chain_reader: ChainReader<char>,
 }
 
 impl Lexer {
     pub fn new(code: String) -> Self {
         let chars = code.chars().collect::<Vec<char>>();
         Self {
-            string_reader: ChainReader::new(chars),
+            chain_reader: ChainReader::new(chars),
         }
     }
 
@@ -23,7 +23,7 @@ impl Lexer {
         };
 
         if type_o.is_some() {
-            self.string_reader.advance();
+            self.chain_reader.advance();
             return Some(Token::new(c.to_string(), type_o.unwrap()));
         }
 
@@ -32,14 +32,14 @@ impl Lexer {
 
     pub fn handle_number(&mut self, c: char) -> Token {
         let mut raw = c.to_string();
-        self.string_reader.advance();
-        while let Some(current) = self.string_reader.get_current() {
+        self.chain_reader.advance();
+        while let Some(current) = self.chain_reader.get_current() {
             if !current.is_numeric() {
                 break;
             }
 
             raw += &current.to_string();
-            self.string_reader.advance();
+            self.chain_reader.advance();
         }
 
         Token::new(raw, Type::Number)
@@ -47,14 +47,14 @@ impl Lexer {
 
     pub fn handle_identifer(&mut self, c: char) -> Token {
         let mut raw = c.to_string();
-        self.string_reader.advance();
-        while let Some(current) = self.string_reader.get_current() {
+        self.chain_reader.advance();
+        while let Some(current) = self.chain_reader.get_current() {
             if !utils::is_identifer(current) {
                 break;
             }
 
             raw += &current.to_string();
-            self.string_reader.advance();
+            self.chain_reader.advance();
         }
 
         Token::new(raw, Type::Identifier)
@@ -63,7 +63,7 @@ impl Lexer {
     pub fn tokenize(&mut self) -> Vec<Token> {
         let mut tokens = vec![];
         let mut raw = String::new();
-        while let Some(current) = self.string_reader.get_current() {
+        while let Some(current) = self.chain_reader.get_current() {
             let mut token_o = None;
             let mut unvariable = false;
             if let Some(found_token) = self.handle_special(current) {
@@ -76,7 +76,7 @@ impl Lexer {
             } else {
                 unvariable = true;
                 raw += &current.to_string();
-                self.string_reader.advance();
+                self.chain_reader.advance();
             }
 
             if !unvariable && raw != "" {
@@ -102,7 +102,7 @@ impl Lexer {
 impl Debug for Lexer {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         f.debug_struct("Lexer")
-            .field("string_reader", &self.string_reader)
+            .field("string_reader", &self.chain_reader)
             .finish()
     }
 }

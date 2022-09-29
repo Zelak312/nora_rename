@@ -1,17 +1,11 @@
 use std::fmt::{Debug, Formatter, Result};
 
-pub struct ChainReader<T>
-where
-    T: Copy,
-{
+pub struct ChainReader<T> {
     pos: usize,
     items: Vec<T>,
 }
 
-impl<T> ChainReader<T>
-where
-    T: Copy,
-{
+impl<T> ChainReader<T> {
     pub fn new(items: Vec<T>) -> Self {
         Self {
             pos: 0,
@@ -34,7 +28,7 @@ where
 
 impl<T> Debug for ChainReader<T>
 where
-    T: Copy + Debug,
+    T: Debug,
 {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         f.debug_struct("StringReader")

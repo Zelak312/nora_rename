@@ -1,5 +1,7 @@
 mod chain_reader;
 mod lexer;
+mod node;
+mod parser;
 mod token;
 mod utils;
 
