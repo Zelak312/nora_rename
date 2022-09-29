@@ -1,16 +1,17 @@
-use super::string_reader::StringReader;
+use super::chain_reader::ChainReader;
 use super::token::{Token, Type};
 use super::utils;
 use std::fmt::{Debug, Formatter, Result};
 
 pub struct Lexer {
-    string_reader: StringReader,
+    string_reader: ChainReader<char>,
 }
 
 impl Lexer {
     pub fn new(code: String) -> Self {
+        let chars = code.chars().collect::<Vec<char>>();
         Self {
-            string_reader: StringReader::new(code),
+            string_reader: ChainReader::new(chars),
         }
     }
 

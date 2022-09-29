@@ -1,5 +1,5 @@
+mod chain_reader;
 mod lexer;
-mod string_reader;
 mod token;
 mod utils;
 
@@ -42,6 +42,7 @@ fn main() {
             let mut lex = lexer::Lexer::new(cli.output.clone());
             let tokens = lex.tokenize();
             println!("{:?}", tokens);
+            break;
         }
     }
 }
