@@ -19,6 +19,10 @@ impl Lexer {
         let type_o = match c {
             '<' => Some(Type::BlockStart),
             '>' => Some(Type::BlockEnd),
+            '+' => Some(Type::Plus),
+            '-' => Some(Type::Minus),
+            '/' => Some(Type::Div),
+            '*' => Some(Type::Mul),
             _ => None,
         };
 
@@ -49,7 +53,7 @@ impl Lexer {
         let mut raw = c.to_string();
         self.chain_reader.advance();
         while let Some(current) = self.chain_reader.get_current() {
-            if !utils::is_identifer(current) {
+            if !utils::is_identifer(current, false) {
                 break;
             }
 
@@ -70,8 +74,7 @@ impl Lexer {
                 token_o = Some(found_token);
             } else if current.is_numeric() {
                 token_o = Some(self.handle_number(current));
-            } else if current == '&' {
-                // Identifiers starts with &
+            } else if utils::is_identifer(current, true) {
                 token_o = Some(self.handle_identifer(current));
             } else {
                 unvariable = true;

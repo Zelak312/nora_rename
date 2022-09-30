@@ -4,12 +4,18 @@ use std::fmt::{Debug, Formatter, Result};
 pub enum Type {
     Unvariable,
 
-    BlockStart,
-    BlockEnd,
     Identifier,
     Number,
+
+    BlockStart,
+    BlockEnd,
+    Plus,
+    Minus,
+    Div,
+    Mul,
 }
 
+#[derive(Clone)]
 pub struct Token {
     pub raw: String,
     pub r#type: Type,
