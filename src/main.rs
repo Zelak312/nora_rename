@@ -1,4 +1,6 @@
+mod base_parser;
 mod chain_reader;
+mod errors;
 mod lexer;
 mod node;
 mod nodes;
