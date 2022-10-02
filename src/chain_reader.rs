@@ -30,6 +30,15 @@ where
 
         Some(self.items[self.pos].clone())
     }
+
+    pub fn eat(&mut self) -> Option<T> {
+        let token = self.get_current();
+        if token.is_some() {
+            self.advance();
+        }
+
+        return token;
+    }
 }
 
 impl<T> Debug for ChainReader<T>

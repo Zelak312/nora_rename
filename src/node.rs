@@ -1,1 +1,1 @@
-pub struct Node {}
+pub trait Node {}
