@@ -1,9 +1,9 @@
+mod ast;
 mod base_parser;
 mod chain_reader;
 mod errors;
 mod lexer;
 mod node;
-mod nodes;
 mod parser;
 mod token;
 mod utils;
@@ -47,6 +47,10 @@ fn main() {
             let mut lex = lexer::Lexer::new(cli.output.clone());
             let tokens = lex.tokenize();
             println!("{:?}", tokens);
+
+            let mut tree = parser::Parser::new(tokens);
+            let nodes = tree.parse().expect("sss");
+            println!("{:?}", nodes);
             break;
         }
     }

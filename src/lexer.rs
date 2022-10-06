@@ -5,6 +5,7 @@ use std::fmt::{Debug, Formatter, Result};
 
 pub struct Lexer {
     chain_reader: ChainReader<char>,
+    in_block: bool,
 }
 
 impl Lexer {
@@ -12,6 +13,7 @@ impl Lexer {
         let chars = code.chars().collect::<Vec<char>>();
         Self {
             chain_reader: ChainReader::new(chars),
+            in_block: false,
         }
     }
 
@@ -71,14 +73,23 @@ impl Lexer {
             let mut token_o = None;
             let mut unvariable = false;
             if let Some(found_token) = self.handle_special(current) {
+                if found_token.r#type == Type::BlockStart {
+                    self.in_block = true;
+                } else if found_token.r#type == Type::BlockEnd {
+                    self.in_block = false;
+                }
+
                 token_o = Some(found_token);
             } else if current.is_numeric() {
                 token_o = Some(self.handle_number(current));
             } else if utils::is_identifer(current, true) {
                 token_o = Some(self.handle_identifer(current));
-            } else {
+            } else if !self.in_block {
                 unvariable = true;
                 raw += &current.to_string();
+                self.chain_reader.advance();
+            } else {
+                // skip
                 self.chain_reader.advance();
             }
 

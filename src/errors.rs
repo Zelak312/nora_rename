@@ -1,4 +1,6 @@
-pub trait Error {
+use std::fmt::Debug;
+
+pub trait Error: Debug {
     fn message(&mut self) -> String;
 }
 
@@ -8,6 +10,7 @@ impl From<Box<BasicError>> for Box<dyn Error> {
     }
 }
 
+#[derive(Debug)]
 pub struct BasicError {
     msg: String,
 }

@@ -5,20 +5,33 @@ use crate::{
 };
 
 pub struct BaseParser {
-    chain_reader: ChainReader<Token>,
+    pub chain_reader: ChainReader<Token>,
 }
 
 impl BaseParser {
+    pub fn new(tokens: Vec<Token>) -> Self {
+        Self {
+            chain_reader: ChainReader::new(tokens),
+        }
+    }
+
+    pub fn any(&mut self) -> Result<Token, Box<dyn Error>> {
+        self.chain_reader
+            .eat()
+            .ok_or(BasicError::new(String::from("Missing")))
+    }
+
     pub fn expect(&mut self, r#type: Type) -> Result<Token, Box<dyn Error>> {
         let token = self
             .chain_reader
-            .eat()
+            .get_current()
             .ok_or(BasicError::new(String::from("Missing")))?;
 
         if r#type != token.r#type {
             return Err(BasicError::new(String::from("the fuck")));
         }
 
+        self.chain_reader.advance();
         Ok(token)
     }
 
