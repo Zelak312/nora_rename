@@ -1,7 +1,7 @@
 use crate::{
     ast::{NodeBinaryOperator, NodeBlock, NodeContent, NodeIdentifer, NodeNumber},
     base_parser::BaseParser,
-    errors::Error,
+    errors::{BasicError, Error},
     node::Node,
     token::{Token, Type},
 };
@@ -37,12 +37,18 @@ impl Parser {
 
     pub fn parse_identifier(&mut self) -> Result<Box<Node>, Box<dyn Error>> {
         let token = self.base_parser.expect(Type::Identifier)?;
-        Ok(Box::new(Node::NodeIdentifer(NodeIdentifer::new(token.raw))))
+        Ok(Box::new(Node::NodeIdentifer(NodeIdentifer {
+            content: token.raw,
+        })))
     }
 
     pub fn parse_number(&mut self) -> Result<Box<Node>, Box<dyn Error>> {
         let token = self.base_parser.expect(Type::Number)?;
-        Ok(Box::new(Node::NodeNumber(NodeNumber::new(token.raw))))
+        let content = token
+            .raw
+            .parse::<f64>()
+            .map_err(|_| BasicError::new("ss".to_owned()))?;
+        Ok(Box::new(Node::NodeNumber(NodeNumber { content })))
     }
 
     pub fn parse_basic_type(&mut self) -> Result<Box<Node>, Box<dyn Error>> {
@@ -59,8 +65,12 @@ impl Parser {
         let operator =
             self.base_parser
                 .expect_m(vec![Type::Plus, Type::Minus, Type::Mul, Type::Div])?;
-        let rigth = self.parse_basic_type()?;
-        let binary = NodeBinaryOperator::new(operator.r#type, left, rigth);
+        let right = self.parse_basic_type()?;
+        let binary = NodeBinaryOperator {
+            operator: operator.r#type,
+            left,
+            right,
+        };
         Ok(Box::new(Node::NodeBinaryOperator(binary)))
     }
 
@@ -75,19 +85,25 @@ impl Parser {
 
         match token.r#type {
             Type::BlockStart => {
-                let block = self.parse_inner_block()?;
-                let mut block_node = NodeBlock::new(block);
+                let content = self.parse_inner_block()?;
+                let mut block_node = NodeBlock {
+                    content,
+                    next: None,
+                };
                 if let Ok(node) = self.parse_content() {
-                    block_node.set_right(node);
+                    block_node.next = Some(node);
                 }
 
                 Ok(Box::new(Node::NodeBlock(block_node)))
             }
             _ => {
                 let content = self.content_all(&token.raw);
-                let mut content_node = NodeContent::new(content);
+                let mut content_node = NodeContent {
+                    content,
+                    next: None,
+                };
                 if let Ok(node) = self.parse_content() {
-                    content_node.set_next(node);
+                    content_node.next = Some(node);
                 }
 
                 Ok(Box::new(Node::NodeContent(content_node)))
