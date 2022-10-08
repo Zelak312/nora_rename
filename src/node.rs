@@ -28,7 +28,7 @@ impl ExecutableNodeReturn {
     //     Err(BasicError::new("ssheesh".to_owned()))
     // }
 
-    pub fn number_or_string(self) -> Result<f64, Box<dyn Error>> {
+    pub fn to_number(self) -> Result<f64, Box<dyn Error>> {
         match self {
             ExecutableNodeReturn::Number(n) => Ok(n),
             ExecutableNodeReturn::String(n) => match n.parse::<f64>() {

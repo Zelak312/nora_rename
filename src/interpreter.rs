@@ -31,8 +31,8 @@ impl ExecutableNode for NodeBinaryOperator {
         &self,
         interpreter: &mut Interpreter,
     ) -> Result<ExecutableNodeReturn, Box<dyn Error>> {
-        let left = self.left.execute(interpreter)?.number_or_string()?;
-        let rigth = self.right.execute(interpreter)?.number_or_string()?;
+        let left = self.left.execute(interpreter)?.to_number()?;
+        let rigth = self.right.execute(interpreter)?.to_number()?;
 
         let out = match self.operator {
             Type::Plus => left + rigth,
