@@ -39,7 +39,7 @@ fn main() {
 
     let mut tree = parser::Parser::new(tokens);
     let nodes = tree.parse().expect("sss");
-    // println!("{:?}", nodes);
+    println!("{:?}", nodes);
 
     for path in paths {
         if path.is_err() {

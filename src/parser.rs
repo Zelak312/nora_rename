@@ -87,16 +87,31 @@ impl Parser {
     }
 
     pub fn parse_binary_operation(&mut self) -> Result<Rc<dyn ExecutableNode>, Box<dyn Error>> {
-        let left = self.parse_basic_type()?;
-        let operator =
-            self.base_parser
-                .expect_m(vec![Type::Plus, Type::Minus, Type::Mul, Type::Div]);
+        let left = self.parse_binary_pow_div()?;
+        let operator = self.base_parser.expect_m(vec![Type::Plus, Type::Minus]);
 
         if operator.is_err() {
             return Ok(left);
         }
 
         let right = self.parse_binary_operation()?;
+        let binary = NodeBinaryOperator {
+            operator: operator.unwrap().r#type,
+            left,
+            right,
+        };
+        Ok(Rc::new(binary))
+    }
+
+    pub fn parse_binary_pow_div(&mut self) -> Result<Rc<dyn ExecutableNode>, Box<dyn Error>> {
+        let left = self.parse_basic_type()?;
+        let operator = self.base_parser.expect_m(vec![Type::Mul, Type::Div]);
+
+        if operator.is_err() {
+            return Ok(left);
+        }
+
+        let right = self.parse_binary_pow_div()?;
         let binary = NodeBinaryOperator {
             operator: operator.unwrap().r#type,
             left,
