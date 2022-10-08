@@ -2,6 +2,7 @@ mod ast;
 mod base_parser;
 mod chain_reader;
 mod errors;
+mod interpreter;
 mod lexer;
 mod node;
 mod parser;
@@ -12,6 +13,8 @@ use std::fs;
 
 use clap::Parser;
 use regex::Regex;
+
+use crate::interpreter::Interpreter;
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
@@ -51,6 +54,14 @@ fn main() {
             let mut tree = parser::Parser::new(tokens);
             let nodes = tree.parse().expect("sss");
             println!("{:?}", nodes);
+
+            let mut interpreter = Interpreter::new();
+            let sh = interpreter
+                .execute(nodes)
+                .expect("nice")
+                .string()
+                .expect("sshesh");
+            println!("{}", sh);
             break;
         }
     }

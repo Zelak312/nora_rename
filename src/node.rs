@@ -1,10 +1,34 @@
-use crate::ast::{NodeBinaryOperator, NodeBlock, NodeContent, NodeIdentifer, NodeNumber};
+use std::fmt::Debug;
 
-#[derive(Debug)]
-pub enum Node {
-    NodeBinaryOperator(NodeBinaryOperator),
-    NodeBlock(NodeBlock),
-    NodeContent(NodeContent),
-    NodeIdentifer(NodeIdentifer),
-    NodeNumber(NodeNumber),
+use crate::{
+    errors::{BasicError, Error},
+    interpreter::Interpreter,
+};
+
+#[derive(PartialEq, Clone)]
+pub enum ExecutableNodeReturn {
+    String(String),
+    Number(f64),
+}
+
+impl ExecutableNodeReturn {
+    pub fn string(self) -> Result<String, Box<dyn Error>> {
+        if let ExecutableNodeReturn::String(s) = self {
+            return Ok(s);
+        }
+
+        Err(BasicError::new("ssheesh".to_owned()))
+    }
+
+    pub fn number(self) -> Result<f64, Box<dyn Error>> {
+        if let ExecutableNodeReturn::Number(s) = self {
+            return Ok(s);
+        }
+
+        Err(BasicError::new("ssheesh".to_owned()))
+    }
+}
+
+pub trait ExecutableNode: Debug {
+    fn execute(&self, _: &mut Interpreter) -> Result<ExecutableNodeReturn, Box<dyn Error>>;
 }
