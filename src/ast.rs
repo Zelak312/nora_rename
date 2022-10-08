@@ -1,23 +1,23 @@
 use crate::{node::ExecutableNode, token::Type};
-use std::fmt::Debug;
+use std::{fmt::Debug, rc::Rc};
 
 #[derive(Debug)]
 pub struct NodeBinaryOperator {
     pub operator: Type,
-    pub left: Box<dyn ExecutableNode>,
-    pub right: Box<dyn ExecutableNode>,
+    pub left: Rc<dyn ExecutableNode>,
+    pub right: Rc<dyn ExecutableNode>,
 }
 
 #[derive(Debug)]
 pub struct NodeBlock {
-    pub content: Box<dyn ExecutableNode>,
-    pub next: Option<Box<dyn ExecutableNode>>,
+    pub content: Rc<dyn ExecutableNode>,
+    pub next: Option<Rc<dyn ExecutableNode>>,
 }
 
 #[derive(Debug)]
 pub struct NodeContent {
     pub content: String,
-    pub next: Option<Box<dyn ExecutableNode>>,
+    pub next: Option<Rc<dyn ExecutableNode>>,
 }
 
 #[derive(Debug)]

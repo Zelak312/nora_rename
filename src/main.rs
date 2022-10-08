@@ -33,6 +33,14 @@ fn main() {
     let path = "./";
     let paths = fs::read_dir(path).unwrap();
 
+    let mut lex = lexer::Lexer::new(cli.output.clone());
+    let tokens = lex.tokenize();
+    // println!("{:?}", tokens);
+
+    let mut tree = parser::Parser::new(tokens);
+    let nodes = tree.parse().expect("sss");
+    // println!("{:?}", nodes);
+
     for path in paths {
         if path.is_err() {
             panic!("{}", path.err().unwrap());
@@ -45,24 +53,15 @@ fn main() {
             .expect("Couldn't get file_name")
             .to_owned();
 
-        if let Some(captues) = regex.captures(&file_name) {
-            println!("{:?}", captues);
-            let mut lex = lexer::Lexer::new(cli.output.clone());
-            let tokens = lex.tokenize();
-            println!("{:?}", tokens);
-
-            let mut tree = parser::Parser::new(tokens);
-            let nodes = tree.parse().expect("sss");
-            println!("{:?}", nodes);
-
-            let mut interpreter = Interpreter::new();
+        if let Some(captures) = regex.captures(&file_name) {
+            // println!("{:?}", captures);
+            let mut interpreter = Interpreter::new(captures);
             let sh = interpreter
-                .execute(nodes)
+                .execute(nodes.clone())
                 .expect("nice")
                 .string()
                 .expect("sshesh");
-            println!("{}", sh);
-            break;
+            println!("{} -> {}", &file_name, sh);
         }
     }
 }

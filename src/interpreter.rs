@@ -1,3 +1,7 @@
+use std::rc::Rc;
+
+use regex::Captures;
+
 use crate::{
     ast::{NodeBinaryOperator, NodeBlock, NodeContent, NodeIdentifer, NodeNumber},
     errors::Error,
@@ -5,16 +9,18 @@ use crate::{
     token::Type,
 };
 
-pub struct Interpreter {}
+pub struct Interpreter<'t> {
+    captures: Captures<'t>,
+}
 
-impl Interpreter {
-    pub fn new() -> Self {
-        Self {}
+impl<'t> Interpreter<'t> {
+    pub fn new(captures: Captures<'t>) -> Self {
+        Self { captures }
     }
 
     pub fn execute(
         &mut self,
-        node: Box<dyn ExecutableNode>,
+        node: Rc<dyn ExecutableNode>,
     ) -> Result<ExecutableNodeReturn, Box<dyn Error>> {
         node.execute(self)
     }
@@ -25,8 +31,8 @@ impl ExecutableNode for NodeBinaryOperator {
         &self,
         interpreter: &mut Interpreter,
     ) -> Result<ExecutableNodeReturn, Box<dyn Error>> {
-        let left = self.left.execute(interpreter)?.number()?;
-        let rigth = self.right.execute(interpreter)?.number()?;
+        let left = self.left.execute(interpreter)?.number_or_string()?;
+        let rigth = self.right.execute(interpreter)?.number_or_string()?;
 
         let out = match self.operator {
             Type::Plus => left + rigth,
@@ -73,8 +79,9 @@ impl ExecutableNode for NodeContent {
 }
 
 impl ExecutableNode for NodeIdentifer {
-    fn execute(&self, _: &mut Interpreter) -> Result<ExecutableNodeReturn, Box<dyn Error>> {
-        Ok(ExecutableNodeReturn::String(String::from(&self.content)))
+    fn execute(&self, i: &mut Interpreter) -> Result<ExecutableNodeReturn, Box<dyn Error>> {
+        let capture = i.captures.name(&self.content).expect("not here");
+        Ok(ExecutableNodeReturn::String(String::from(capture.as_str())))
     }
 }
 

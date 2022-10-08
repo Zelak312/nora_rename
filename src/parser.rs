@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use crate::{
     ast::{NodeBinaryOperator, NodeBlock, NodeContent, NodeIdentifer, NodeNumber},
     base_parser::BaseParser,
@@ -31,7 +33,7 @@ impl Parser {
         content
     }
 
-    pub fn parse(&mut self) -> Result<Box<dyn ExecutableNode>, Box<dyn Error>> {
+    pub fn parse(&mut self) -> Result<Rc<dyn ExecutableNode>, Box<dyn Error>> {
         let token = self.base_parser.any()?;
         match token.r#type {
             Type::BlockStart => {
@@ -44,7 +46,7 @@ impl Parser {
                     block_node.next = Some(node);
                 }
 
-                Ok(Box::new(block_node))
+                Ok(Rc::new(block_node))
             }
             _ => {
                 let content = self.content_all(&token.raw);
@@ -56,26 +58,26 @@ impl Parser {
                     content_node.next = Some(node);
                 }
 
-                Ok(Box::new(content_node))
+                Ok(Rc::new(content_node))
             }
         }
     }
 
-    pub fn parse_identifier(&mut self) -> Result<Box<dyn ExecutableNode>, Box<dyn Error>> {
+    pub fn parse_identifier(&mut self) -> Result<Rc<dyn ExecutableNode>, Box<dyn Error>> {
         let token = self.base_parser.expect(Type::Identifier)?;
-        Ok(Box::new(NodeIdentifer { content: token.raw }))
+        Ok(Rc::new(NodeIdentifer { content: token.raw }))
     }
 
-    pub fn parse_number(&mut self) -> Result<Box<dyn ExecutableNode>, Box<dyn Error>> {
+    pub fn parse_number(&mut self) -> Result<Rc<dyn ExecutableNode>, Box<dyn Error>> {
         let token = self.base_parser.expect(Type::Number)?;
         let content = token
             .raw
             .parse::<f64>()
             .map_err(|_| BasicError::new("ss".to_owned()))?;
-        Ok(Box::new(NodeNumber { content }))
+        Ok(Rc::new(NodeNumber { content }))
     }
 
-    pub fn parse_basic_type(&mut self) -> Result<Box<dyn ExecutableNode>, Box<dyn Error>> {
+    pub fn parse_basic_type(&mut self) -> Result<Rc<dyn ExecutableNode>, Box<dyn Error>> {
         let identifer = self.parse_identifier();
         if identifer.is_ok() {
             return identifer;
@@ -84,7 +86,7 @@ impl Parser {
         self.parse_number()
     }
 
-    pub fn parse_binary_operation(&mut self) -> Result<Box<dyn ExecutableNode>, Box<dyn Error>> {
+    pub fn parse_binary_operation(&mut self) -> Result<Rc<dyn ExecutableNode>, Box<dyn Error>> {
         let left = self.parse_basic_type()?;
         let operator =
             self.base_parser
@@ -100,10 +102,10 @@ impl Parser {
             left,
             right,
         };
-        Ok(Box::new(binary))
+        Ok(Rc::new(binary))
     }
 
-    pub fn parse_inner_block(&mut self) -> Result<Box<dyn ExecutableNode>, Box<dyn Error>> {
+    pub fn parse_inner_block(&mut self) -> Result<Rc<dyn ExecutableNode>, Box<dyn Error>> {
         let node = self.parse_binary_operation()?;
         self.base_parser.expect(Type::BlockEnd)?;
         Ok(node)
