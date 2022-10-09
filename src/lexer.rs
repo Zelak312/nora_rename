@@ -21,10 +21,10 @@ impl Lexer {
         let type_o = match c {
             '<' => Some(Type::BlockStart),
             '>' => Some(Type::BlockEnd),
-            '+' => Some(Type::Plus),
-            '-' => Some(Type::Minus),
-            '/' => Some(Type::Div),
-            '*' => Some(Type::Mul),
+            '+' => Some(Type::Addition),
+            '-' => Some(Type::Subtraction),
+            '/' => Some(Type::Division),
+            '*' => Some(Type::Multiplication),
             _ => None,
         };
 

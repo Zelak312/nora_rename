@@ -88,7 +88,9 @@ impl Parser {
 
     pub fn parse_binary_operation(&mut self) -> Result<Rc<dyn ExecutableNode>, Box<dyn Error>> {
         let left = self.parse_binary_pow_div()?;
-        let operator = self.base_parser.expect_m(vec![Type::Plus, Type::Minus]);
+        let operator = self
+            .base_parser
+            .expect_m(vec![Type::Addition, Type::Subtraction]);
 
         if operator.is_err() {
             return Ok(left);
@@ -105,7 +107,9 @@ impl Parser {
 
     pub fn parse_binary_pow_div(&mut self) -> Result<Rc<dyn ExecutableNode>, Box<dyn Error>> {
         let left = self.parse_basic_type()?;
-        let operator = self.base_parser.expect_m(vec![Type::Mul, Type::Div]);
+        let operator = self
+            .base_parser
+            .expect_m(vec![Type::Multiplication, Type::Division]);
 
         if operator.is_err() {
             return Ok(left);

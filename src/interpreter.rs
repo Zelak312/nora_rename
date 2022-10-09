@@ -35,10 +35,10 @@ impl ExecutableNode for NodeBinaryOperator {
         let rigth = self.right.execute(interpreter)?.to_number()?;
 
         let out = match self.operator {
-            Type::Plus => left + rigth,
-            Type::Minus => left - rigth,
-            Type::Mul => left * rigth,
-            Type::Div => left / rigth,
+            Type::Addition => left + rigth,
+            Type::Subtraction => left - rigth,
+            Type::Multiplication => left * rigth,
+            Type::Division => left / rigth,
             _ => panic!("really bad"),
         };
 

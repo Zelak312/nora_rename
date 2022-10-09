@@ -9,10 +9,10 @@ pub enum Type {
 
     BlockStart,
     BlockEnd,
-    Plus,
-    Minus,
-    Div,
-    Mul,
+    Addition,
+    Subtraction,
+    Division,
+    Multiplication,
 }
 
 #[derive(Clone)]
