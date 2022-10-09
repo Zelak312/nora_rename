@@ -117,6 +117,7 @@ impl Parser {
             left,
             right,
         };
+
         Ok(Rc::new(binary))
     }
 

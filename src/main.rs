@@ -38,8 +38,13 @@ fn main() {
     // println!("{:?}", tokens);
 
     let mut tree = parser::Parser::new(tokens);
-    let nodes = tree.parse().expect("sss");
-    println!("{:?}", nodes);
+    let node_result = tree.parse();
+    if let Err(err) = node_result {
+        panic!("{}", err);
+    }
+
+    let node = node_result.unwrap();
+    println!("{:?}", node);
 
     for path in paths {
         if path.is_err() {
@@ -57,7 +62,7 @@ fn main() {
             // println!("{:?}", captures);
             let mut interpreter = Interpreter::new(captures);
             let sh = interpreter
-                .execute(nodes.clone())
+                .execute(node.clone())
                 .expect("nice")
                 .string()
                 .expect("sshesh");
