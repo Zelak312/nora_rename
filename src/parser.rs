@@ -87,42 +87,37 @@ impl Parser {
     }
 
     pub fn parse_binary_operation(&mut self) -> Result<Rc<dyn ExecutableNode>, Box<dyn Error>> {
-        let left = self.parse_binary_pow_div()?;
-        let operator = self
+        let mut left = self.parse_binary_pow_div()?;
+        while let Ok(operator) = self
             .base_parser
-            .expect_m(vec![Type::Addition, Type::Subtraction]);
-
-        if operator.is_err() {
-            return Ok(left);
+            .expect_m(vec![Type::Addition, Type::Subtraction])
+        {
+            let right = self.parse_binary_pow_div()?;
+            left = Rc::new(NodeBinaryOperator {
+                operator: operator.r#type,
+                left,
+                right,
+            });
         }
 
-        let right = self.parse_binary_operation()?;
-        let binary = NodeBinaryOperator {
-            operator: operator.unwrap().r#type,
-            left,
-            right,
-        };
-        Ok(Rc::new(binary))
+        Ok(left)
     }
 
     pub fn parse_binary_pow_div(&mut self) -> Result<Rc<dyn ExecutableNode>, Box<dyn Error>> {
-        let left = self.parse_binary_parenthese()?;
-        let operator = self
+        let mut left = self.parse_binary_parenthese()?;
+        while let Ok(operator) = self
             .base_parser
-            .expect_m(vec![Type::Multiplication, Type::Division]);
-
-        if operator.is_err() {
-            return Ok(left);
+            .expect_m(vec![Type::Multiplication, Type::Division])
+        {
+            let right = self.parse_binary_parenthese()?;
+            left = Rc::new(NodeBinaryOperator {
+                operator: operator.r#type,
+                left,
+                right,
+            });
         }
 
-        let right = self.parse_binary_pow_div()?;
-        let binary = NodeBinaryOperator {
-            operator: operator.unwrap().r#type,
-            left,
-            right,
-        };
-
-        Ok(Rc::new(binary))
+        Ok(left)
     }
 
     pub fn parse_binary_parenthese(&mut self) -> Result<Rc<dyn ExecutableNode>, Box<dyn Error>> {
