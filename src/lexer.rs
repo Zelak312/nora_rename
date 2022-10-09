@@ -53,11 +53,11 @@ impl Lexer {
         Token::new(raw, Type::Number)
     }
 
-    pub fn handle_identifer(&mut self) -> Token {
-        let mut raw = String::new();
+    pub fn handle_identifer(&mut self, c: char) -> Token {
+        let mut raw = c.to_string();
         self.chain_reader.advance();
         while let Some(current) = self.chain_reader.get_current() {
-            if !utils::is_identifer(current, false) {
+            if !utils::is_identifer(current) {
                 break;
             }
 
@@ -84,8 +84,8 @@ impl Lexer {
                 token_o = Some(found_token);
             } else if current.is_numeric() {
                 token_o = Some(self.handle_number(current));
-            } else if utils::is_identifer(current, true) {
-                token_o = Some(self.handle_identifer());
+            } else if utils::is_identifer(current) {
+                token_o = Some(self.handle_identifer(current));
             } else if !self.in_block {
                 unvariable = true;
                 raw += &current.to_string();
