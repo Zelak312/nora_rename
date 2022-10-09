@@ -106,7 +106,7 @@ impl Parser {
     }
 
     pub fn parse_binary_pow_div(&mut self) -> Result<Rc<dyn ExecutableNode>, Box<dyn Error>> {
-        let left = self.parse_basic_type()?;
+        let left = self.parse_binary_parenthese()?;
         let operator = self
             .base_parser
             .expect_m(vec![Type::Multiplication, Type::Division]);
@@ -123,6 +123,16 @@ impl Parser {
         };
 
         Ok(Rc::new(binary))
+    }
+
+    pub fn parse_binary_parenthese(&mut self) -> Result<Rc<dyn ExecutableNode>, Box<dyn Error>> {
+        if let Ok(_) = self.base_parser.expect(Type::ParentL) {
+            let math = self.parse_binary_operation()?;
+            self.base_parser.expect(Type::ParentR)?;
+            return Ok(math);
+        }
+
+        self.parse_basic_type()
     }
 
     pub fn parse_inner_block(&mut self) -> Result<Rc<dyn ExecutableNode>, Box<dyn Error>> {

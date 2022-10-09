@@ -13,6 +13,9 @@ pub enum Type {
     Subtraction,
     Division,
     Multiplication,
+
+    ParentL,
+    ParentR,
 }
 
 #[derive(Clone)]

@@ -35,7 +35,7 @@ fn main() {
 
     let mut lex = lexer::Lexer::new(cli.output.clone());
     let tokens = lex.tokenize();
-    // println!("{:?}", tokens);
+    println!("{:?}", tokens);
 
     let mut tree = parser::Parser::new(tokens);
     let node_result = tree.parse();

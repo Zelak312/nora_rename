@@ -25,6 +25,8 @@ impl Lexer {
             '-' => Some(Type::Subtraction),
             '/' => Some(Type::Division),
             '*' => Some(Type::Multiplication),
+            '(' => Some(Type::ParentL),
+            ')' => Some(Type::ParentR),
             _ => None,
         };
 
