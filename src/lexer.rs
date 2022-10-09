@@ -42,7 +42,12 @@ impl Lexer {
         let mut raw = c.to_string();
         self.chain_reader.advance();
         while let Some(current) = self.chain_reader.get_current() {
-            if !current.is_numeric() {
+            if current == '_' {
+                self.chain_reader.advance();
+                continue;
+            }
+
+            if !current.is_numeric() && current != '.' {
                 break;
             }
 
