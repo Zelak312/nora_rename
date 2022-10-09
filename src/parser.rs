@@ -69,9 +69,12 @@ impl Parser {
     }
 
     pub fn parse_number(&mut self) -> Result<Rc<dyn ExecutableNode>, Box<dyn Error>> {
+        // check if it's an unary
+        let unary = self
+            .base_parser
+            .expect_m(vec![Type::Addition, Type::Subtraction]);
         let token = self.base_parser.expect(Type::Number)?;
-        let content = token
-            .raw
+        let content = (unary.map_or("".to_owned(), |t| t.raw).to_owned() + &token.raw)
             .parse::<f64>()
             .map_err(|_| BasicError::new("ss".to_owned()))?;
         Ok(Rc::new(NodeNumber { content }))
