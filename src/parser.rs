@@ -1,7 +1,10 @@
 use std::rc::Rc;
 
 use crate::{
-    ast::{NodeBinaryOperator, NodeBlock, NodeContent, NodeIdentifer, NodeNumber},
+    ast::{
+        NodeBinaryOperator, NodeBlock, NodeCondition, NodeContent, NodeIdentifer, NodeNumber,
+        NodeTernary,
+    },
     base_parser::BaseParser,
     errors::{BasicError, Error},
     node::ExecutableNode,
@@ -125,7 +128,7 @@ impl Parser {
 
     pub fn parse_binary_parenthese(&mut self) -> Result<Rc<dyn ExecutableNode>, Box<dyn Error>> {
         if let Ok(_) = self.base_parser.expect(Type::ParentL) {
-            let math = self.parse_binary_operation()?;
+            let math = self.parse_ternary()?;
             self.base_parser.expect(Type::ParentR)?;
             return Ok(math);
         }
@@ -134,8 +137,45 @@ impl Parser {
     }
 
     pub fn parse_inner_block(&mut self) -> Result<Rc<dyn ExecutableNode>, Box<dyn Error>> {
-        let node = self.parse_binary_operation()?;
+        let node = self.parse_ternary()?;
         self.base_parser.expect(Type::BlockEnd)?;
         Ok(node)
+    }
+
+    pub fn parse_ternary(&mut self) -> Result<Rc<dyn ExecutableNode>, Box<dyn Error>> {
+        let condition = self.parse_condition()?;
+        if self.base_parser.expect(Type::QuestionMark).is_ok() {
+            let left = self.parse_ternary()?;
+            self.base_parser.expect(Type::Semicolon)?;
+            let right = self.parse_ternary()?;
+
+            return Ok(Rc::new(NodeTernary {
+                condition,
+                left,
+                right,
+            }));
+        }
+
+        Ok(condition)
+    }
+
+    pub fn parse_condition(&mut self) -> Result<Rc<dyn ExecutableNode>, Box<dyn Error>> {
+        let mut left = self.parse_binary_operation()?;
+        while let Ok(operator) = self.base_parser.expect_m(vec![
+            Type::LessThanSign,
+            Type::LessThanEqualSign,
+            Type::GreaterThanSign,
+            Type::GreaterThanEqualSign,
+            Type::DoubleEqualSign,
+        ]) {
+            let right = self.parse_binary_operation()?;
+            left = Rc::new(NodeCondition {
+                operator: operator.r#type,
+                left,
+                right,
+            });
+        }
+
+        Ok(left)
     }
 }

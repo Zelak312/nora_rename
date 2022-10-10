@@ -29,3 +29,17 @@ pub struct NodeIdentifer {
 pub struct NodeNumber {
     pub content: f64,
 }
+
+#[derive(Debug)]
+pub struct NodeCondition {
+    pub operator: Type,
+    pub left: Rc<dyn ExecutableNode>,
+    pub right: Rc<dyn ExecutableNode>,
+}
+
+#[derive(Debug)]
+pub struct NodeTernary {
+    pub condition: Rc<dyn ExecutableNode>,
+    pub left: Rc<dyn ExecutableNode>,
+    pub right: Rc<dyn ExecutableNode>,
+}

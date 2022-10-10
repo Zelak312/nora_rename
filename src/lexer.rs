@@ -19,20 +19,60 @@ impl Lexer {
 
     pub fn handle_special(&mut self, c: char) -> Option<Token> {
         let type_o = match c {
-            '<' => Some(Type::BlockStart),
-            '>' => Some(Type::BlockEnd),
+            '[' => Some(Type::BlockStart),
+            ']' => Some(Type::BlockEnd),
             '+' => Some(Type::Addition),
             '-' => Some(Type::Subtraction),
             '/' => Some(Type::Division),
             '*' => Some(Type::Multiplication),
             '(' => Some(Type::ParentL),
             ')' => Some(Type::ParentR),
+            ':' => Some(Type::Semicolon),
+            '?' => Some(Type::QuestionMark),
+            '=' => Some(Type::EqualSign),
+            '<' => Some(Type::LessThanSign),
+            '>' => Some(Type::GreaterThanSign),
             _ => None,
         };
 
-        if type_o.is_some() {
+        if let Some(_type) = type_o {
             self.chain_reader.advance();
-            return Some(Token::new(c.to_string(), type_o.unwrap()));
+            if let Some(token) = self.handle_double_special(c, _type.clone()) {
+                return Some(token);
+            }
+
+            return Some(Token::new(c.to_string(), _type));
+        }
+
+        None
+    }
+
+    pub fn handle_double_special(&mut self, c: char, _type: Type) -> Option<Token> {
+        let next_c_o = self.chain_reader.get_current();
+        if next_c_o.is_none() {
+            return None;
+        }
+
+        let next_c = next_c_o.unwrap();
+        let type_o = match _type {
+            Type::EqualSign => match next_c {
+                '=' => Some(Type::DoubleEqualSign),
+                _ => None,
+            },
+            Type::LessThanSign => match next_c {
+                '=' => Some(Type::LessThanEqualSign),
+                _ => None,
+            },
+            Type::GreaterThanSign => match next_c {
+                '=' => Some(Type::GreaterThanEqualSign),
+                _ => None,
+            },
+            _ => None,
+        };
+
+        if let Some(_type_d) = type_o {
+            self.chain_reader.advance();
+            return Some(Token::new(c.to_string() + &next_c.to_string(), _type_d));
         }
 
         None

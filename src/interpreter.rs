@@ -3,7 +3,10 @@ use std::rc::Rc;
 use regex::Captures;
 
 use crate::{
-    ast::{NodeBinaryOperator, NodeBlock, NodeContent, NodeIdentifer, NodeNumber},
+    ast::{
+        NodeBinaryOperator, NodeBlock, NodeCondition, NodeContent, NodeIdentifer, NodeNumber,
+        NodeTernary,
+    },
     errors::Error,
     node::{ExecutableNode, ExecutableNodeReturn},
     token::Type,
@@ -51,11 +54,7 @@ impl ExecutableNode for NodeBlock {
         &self,
         interpreter: &mut Interpreter,
     ) -> Result<ExecutableNodeReturn, Box<dyn Error>> {
-        let mut out = match self.content.execute(interpreter)? {
-            ExecutableNodeReturn::String(content) => content,
-            ExecutableNodeReturn::Number(content) => content.to_string(),
-        };
-
+        let mut out = self.content.execute(interpreter)?.to_string()?;
         if let Some(node) = &self.next {
             out += &node.execute(interpreter)?.string()?;
         }
@@ -88,5 +87,21 @@ impl ExecutableNode for NodeIdentifer {
 impl ExecutableNode for NodeNumber {
     fn execute(&self, _: &mut Interpreter) -> Result<ExecutableNodeReturn, Box<dyn Error>> {
         Ok(ExecutableNodeReturn::Number(self.content.clone()))
+    }
+}
+
+impl ExecutableNode for NodeCondition {
+    fn execute(&self, i: &mut Interpreter) -> Result<ExecutableNodeReturn, Box<dyn Error>> {
+        self.left.execute(i)?.eqq(self.right.execute(i)?)
+    }
+}
+impl ExecutableNode for NodeTernary {
+    fn execute(&self, i: &mut Interpreter) -> Result<ExecutableNodeReturn, Box<dyn Error>> {
+        let cond = self.condition.execute(i)?.bool()?;
+        if cond {
+            return self.left.execute(i);
+        }
+
+        return self.right.execute(i);
     }
 }

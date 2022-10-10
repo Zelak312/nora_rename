@@ -16,6 +16,16 @@ pub enum Type {
 
     ParentL,
     ParentR,
+
+    Semicolon,
+    QuestionMark,
+
+    EqualSign,
+    DoubleEqualSign,
+    LessThanSign,
+    LessThanEqualSign,
+    GreaterThanSign,
+    GreaterThanEqualSign,
 }
 
 #[derive(Clone)]
