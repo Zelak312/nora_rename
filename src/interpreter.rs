@@ -5,7 +5,7 @@ use regex::Captures;
 use crate::{
     ast::{
         NodeBinaryOperator, NodeBlock, NodeCondition, NodeContent, NodeIdentifer, NodeNumber,
-        NodeTernary,
+        NodeString, NodeTernary,
     },
     errors::Error,
     node::{ExecutableNode, ExecutableNodeReturn},
@@ -34,18 +34,31 @@ impl ExecutableNode for NodeBinaryOperator {
         &self,
         interpreter: &mut Interpreter,
     ) -> Result<ExecutableNodeReturn, Box<dyn Error>> {
-        let left = self.left.execute(interpreter)?.to_number()?;
-        let rigth = self.right.execute(interpreter)?.to_number()?;
+        let left_o = self.left.execute(interpreter)?;
+        match left_o {
+            ExecutableNodeReturn::Number(n) => {
+                let rigth = self.right.execute(interpreter)?.to_number()?;
+                let out = match self.operator {
+                    Type::Addition => n + rigth,
+                    Type::Subtraction => n - rigth,
+                    Type::Multiplication => n * rigth,
+                    Type::Division => n / rigth,
+                    _ => panic!("Operator not found (this shouldn't be panicing!"),
+                };
 
-        let out = match self.operator {
-            Type::Addition => left + rigth,
-            Type::Subtraction => left - rigth,
-            Type::Multiplication => left * rigth,
-            Type::Division => left / rigth,
-            _ => panic!("really bad"),
-        };
+                return Ok(ExecutableNodeReturn::Number(out));
+            }
+            ExecutableNodeReturn::String(n) => {
+                let rigth = self.right.execute(interpreter)?.to_string()?;
+                let out = match self.operator {
+                    Type::Addition => n + &rigth,
+                    _ => panic!("Operator not found (this shouldn't be panicing!)"),
+                };
 
-        Ok(ExecutableNodeReturn::Number(out))
+                return Ok(ExecutableNodeReturn::String(out));
+            }
+            _ => panic!("Cannot do binary operation on this type"),
+        }
     }
 }
 
@@ -81,6 +94,12 @@ impl ExecutableNode for NodeIdentifer {
     fn execute(&self, i: &mut Interpreter) -> Result<ExecutableNodeReturn, Box<dyn Error>> {
         let capture = i.captures.name(&self.content).expect("not here");
         Ok(ExecutableNodeReturn::String(String::from(capture.as_str())))
+    }
+}
+
+impl ExecutableNode for NodeString {
+    fn execute(&self, _: &mut Interpreter) -> Result<ExecutableNodeReturn, Box<dyn Error>> {
+        Ok(ExecutableNodeReturn::String(self.content.clone()))
     }
 }
 

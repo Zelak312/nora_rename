@@ -113,6 +113,22 @@ impl Lexer {
         Token::new(raw, Type::Identifier)
     }
 
+    pub fn handle_string(&mut self) -> Token {
+        let mut raw = String::new();
+        self.chain_reader.advance();
+        while let Some(current) = self.chain_reader.get_current() {
+            if current == '"' {
+                self.chain_reader.advance();
+                break;
+            }
+
+            raw += &current.to_string();
+            self.chain_reader.advance();
+        }
+
+        Token::new(raw, Type::String)
+    }
+
     pub fn tokenize(&mut self) -> Vec<Token> {
         let mut tokens = vec![];
         let mut raw = String::new();
@@ -131,6 +147,8 @@ impl Lexer {
                 token_o = Some(self.handle_number(current));
             } else if utils::is_identifer(current) {
                 token_o = Some(self.handle_identifer(current));
+            } else if current == '"' {
+                token_o = Some(self.handle_string());
             } else if !self.in_block {
                 unvariable = true;
                 raw += &current.to_string();

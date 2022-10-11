@@ -3,7 +3,7 @@ use std::rc::Rc;
 use crate::{
     ast::{
         NodeBinaryOperator, NodeBlock, NodeCondition, NodeContent, NodeIdentifer, NodeNumber,
-        NodeTernary,
+        NodeString, NodeTernary,
     },
     base_parser::BaseParser,
     errors::{BasicError, Error},
@@ -71,6 +71,11 @@ impl Parser {
         Ok(Rc::new(NodeIdentifer { content: token.raw }))
     }
 
+    pub fn parse_string(&mut self) -> Result<Rc<dyn ExecutableNode>, Box<dyn Error>> {
+        let token = self.base_parser.expect(Type::String)?;
+        Ok(Rc::new(NodeString { content: token.raw }))
+    }
+
     pub fn parse_number(&mut self) -> Result<Rc<dyn ExecutableNode>, Box<dyn Error>> {
         // check if it's an unary
         let unary = self
@@ -87,6 +92,11 @@ impl Parser {
         let identifer = self.parse_identifier();
         if identifer.is_ok() {
             return identifer;
+        }
+
+        let string = self.parse_string();
+        if string.is_ok() {
+            return string;
         }
 
         self.parse_number()

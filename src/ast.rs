@@ -26,6 +26,11 @@ pub struct NodeIdentifer {
 }
 
 #[derive(Debug)]
+pub struct NodeString {
+    pub content: String,
+}
+
+#[derive(Debug)]
 pub struct NodeNumber {
     pub content: f64,
 }
