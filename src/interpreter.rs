@@ -1,6 +1,6 @@
-use std::rc::Rc;
+use std::{collections::HashMap, rc::Rc};
 
-use regex::Captures;
+use regex::{CaptureNames, Captures};
 
 use crate::{
     ast::{
@@ -12,13 +12,27 @@ use crate::{
     token::Type,
 };
 
-pub struct Interpreter<'t> {
-    captures: Captures<'t>,
+pub struct Interpreter {
+    scope: HashMap<String, String>,
+    count: i64,
 }
 
-impl<'t> Interpreter<'t> {
-    pub fn new(captures: Captures<'t>) -> Self {
-        Self { captures }
+impl Interpreter {
+    pub fn new(count: i64, captures: Captures, names: CaptureNames) -> Self {
+        let mut map = HashMap::new();
+        map.insert(String::from("#count"), count.to_string());
+
+        for name in names {
+            if let Some(m) = name {
+                let cap = captures.name(m);
+                if cap.is_none() {
+                    continue;
+                }
+
+                map.insert(m.to_owned(), cap.unwrap().as_str().to_owned());
+            }
+        }
+        Self { scope: map, count }
     }
 
     pub fn execute(
@@ -26,6 +40,13 @@ impl<'t> Interpreter<'t> {
         node: Rc<dyn ExecutableNode>,
     ) -> Result<ExecutableNodeReturn, Box<dyn Error>> {
         node.execute(self)
+    }
+
+    pub fn update_count(&mut self) {
+        // TODO: change count to work
+        self.count += 1;
+        self.scope
+            .insert("#count".to_owned(), self.count.to_string());
     }
 }
 
@@ -92,7 +113,7 @@ impl ExecutableNode for NodeContent {
 
 impl ExecutableNode for NodeIdentifer {
     fn execute(&self, i: &mut Interpreter) -> Result<ExecutableNodeReturn, Box<dyn Error>> {
-        let capture = i.captures.name(&self.content).expect("not here");
+        let capture = i.scope.get(&self.content).expect("not here");
         Ok(ExecutableNodeReturn::String(String::from(capture.as_str())))
     }
 }

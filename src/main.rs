@@ -46,6 +46,7 @@ fn main() {
     let node = node_result.unwrap();
     // println!("{:?}", node);
 
+    let mut count = 1;
     for path in paths {
         if path.is_err() {
             panic!("{}", path.err().unwrap());
@@ -60,13 +61,18 @@ fn main() {
 
         if let Some(captures) = regex.captures(&file_name) {
             // println!("{:?}", captures);
-            let mut interpreter = Interpreter::new(captures);
+            let mut interpreter = Interpreter::new(count, captures, regex.capture_names());
+            // TODO: interpreter should only be made once
+            // And handle parsing multiple asts
             let sh = interpreter
                 .execute(node.clone())
                 .expect("nice")
                 .string()
                 .expect("sshesh");
             println!("{} -> {}", &file_name, sh);
+
+            interpreter.update_count();
+            count += 1;
         }
     }
 }
