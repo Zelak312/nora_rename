@@ -129,6 +129,20 @@ impl Lexer {
         Token::new(raw, Type::String)
     }
 
+    pub fn handle_keyword(&mut self, s: &str) -> Option<Token> {
+        let _type = match s {
+            "number" => Some(Type::KeyNumber),
+            "string" => Some(Type::KeyString),
+            _ => None,
+        };
+
+        if _type.is_some() {
+            return Some(Token::new(s.to_owned(), _type.unwrap()));
+        }
+
+        None
+    }
+
     pub fn tokenize(&mut self) -> Vec<Token> {
         let mut tokens = vec![];
         let mut raw = String::new();
@@ -145,10 +159,13 @@ impl Lexer {
                 token_o = Some(found_token);
             } else if current.is_numeric() {
                 token_o = Some(self.handle_number(current));
-            } else if utils::is_identifer(current) {
-                token_o = Some(self.handle_identifer(current));
             } else if current == '"' {
                 token_o = Some(self.handle_string());
+            } else if utils::is_identifer(current) {
+                token_o = Some(self.handle_identifer(current));
+                if let Some(keyword) = self.handle_keyword(&token_o.as_ref().unwrap().raw) {
+                    token_o = Some(keyword)
+                }
             } else if !self.in_block {
                 unvariable = true;
                 raw += &current.to_string();

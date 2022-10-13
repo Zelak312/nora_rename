@@ -2,8 +2,8 @@ use std::rc::Rc;
 
 use crate::{
     ast::{
-        NodeBinaryOperator, NodeBlock, NodeCondition, NodeContent, NodeIdentifer, NodeNumber,
-        NodeString, NodeTernary,
+        NodeBinaryOperator, NodeBlock, NodeCondition, NodeContent, NodeIdentifer, NodeKeyword,
+        NodeNumber, NodeString, NodeTernary,
     },
     base_parser::BaseParser,
     errors::{BasicError, Error},
@@ -89,6 +89,11 @@ impl Parser {
     }
 
     pub fn parse_basic_type(&mut self) -> Result<Rc<dyn ExecutableNode>, Box<dyn Error>> {
+        let keyword = self.parse_keyword();
+        if keyword.is_ok() {
+            return keyword;
+        }
+
         let identifer = self.parse_identifier();
         if identifer.is_ok() {
             return identifer;
@@ -100,6 +105,20 @@ impl Parser {
         }
 
         self.parse_number()
+    }
+
+    pub fn parse_keyword(&mut self) -> Result<Rc<dyn ExecutableNode>, Box<dyn Error>> {
+        let keyword = self
+            .base_parser
+            .expect_m(vec![Type::KeyNumber, Type::KeyString])?;
+        self.base_parser.expect(Type::ParentL)?;
+        let content = self.parse_ternary()?;
+        self.base_parser.expect(Type::ParentR)?;
+
+        Ok(Rc::new(NodeKeyword {
+            keyword: keyword.r#type,
+            content,
+        }))
     }
 
     pub fn parse_binary_operation(&mut self) -> Result<Rc<dyn ExecutableNode>, Box<dyn Error>> {

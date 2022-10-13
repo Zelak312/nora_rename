@@ -4,8 +4,8 @@ use regex::{CaptureNames, Captures};
 
 use crate::{
     ast::{
-        NodeBinaryOperator, NodeBlock, NodeCondition, NodeContent, NodeIdentifer, NodeNumber,
-        NodeString, NodeTernary,
+        NodeBinaryOperator, NodeBlock, NodeCondition, NodeContent, NodeIdentifer, NodeKeyword,
+        NodeNumber, NodeString, NodeTernary,
     },
     errors::Error,
     node::{ExecutableNode, ExecutableNodeReturn},
@@ -143,5 +143,15 @@ impl ExecutableNode for NodeTernary {
         }
 
         return self.right.execute(i);
+    }
+}
+
+impl ExecutableNode for NodeKeyword {
+    fn execute(&self, i: &mut Interpreter) -> Result<ExecutableNodeReturn, Box<dyn Error>> {
+        Ok(match self.keyword {
+            Type::KeyNumber => ExecutableNodeReturn::Number(self.content.execute(i)?.to_number()?),
+            Type::KeyString => ExecutableNodeReturn::String(self.content.execute(i)?.to_string()?),
+            _ => panic!("djijdiw"),
+        })
     }
 }

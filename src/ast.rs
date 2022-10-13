@@ -48,3 +48,9 @@ pub struct NodeTernary {
     pub left: Rc<dyn ExecutableNode>,
     pub right: Rc<dyn ExecutableNode>,
 }
+
+#[derive(Debug)]
+pub struct NodeKeyword {
+    pub keyword: Type,
+    pub content: Rc<dyn ExecutableNode>,
+}

@@ -27,6 +27,9 @@ pub enum Type {
     LessThanEqualSign,
     GreaterThanSign,
     GreaterThanEqualSign,
+
+    KeyNumber,
+    KeyString,
 }
 
 #[derive(Clone)]

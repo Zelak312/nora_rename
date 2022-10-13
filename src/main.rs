@@ -33,6 +33,7 @@ fn main() {
     let path = "./";
     let paths = fs::read_dir(path).unwrap();
 
+    println!("{:?}", cli.output.clone());
     let mut lex = lexer::Lexer::new(cli.output.clone());
     let tokens = lex.tokenize();
     // println!("{:?}", tokens);
