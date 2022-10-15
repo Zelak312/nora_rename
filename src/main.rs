@@ -36,7 +36,7 @@ fn main() {
     println!("{:?}", cli.output.clone());
     let mut lex = lexer::Lexer::new(cli.output.clone());
     let tokens = lex.tokenize();
-    // println!("{:?}", tokens);
+    println!("{:?}", tokens);
 
     let mut tree = parser::Parser::new(tokens);
     let node_result = tree.parse();
@@ -45,7 +45,7 @@ fn main() {
     }
 
     let node = node_result.unwrap();
-    // println!("{:?}", node);
+    println!("{:?}", node);
 
     let mut count = 1;
     for path in paths {

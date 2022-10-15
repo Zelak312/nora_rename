@@ -67,6 +67,10 @@ impl Lexer {
                 '=' => Some(Type::GreaterThanEqualSign),
                 _ => None,
             },
+            Type::ExclamationMark => match next_c {
+                '=' => Some(Type::NotEqualSign),
+                _ => None,
+            },
             _ => None,
         };
 

@@ -20,9 +20,11 @@ pub enum Type {
 
     Semicolon,
     QuestionMark,
+    ExclamationMark,
 
     EqualSign,
     DoubleEqualSign,
+    NotEqualSign,
     LessThanSign,
     LessThanEqualSign,
     GreaterThanSign,
