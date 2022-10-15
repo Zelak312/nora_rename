@@ -1,6 +1,6 @@
 use std::fmt::{Debug, Display};
 
-use crate::token::Type;
+use crate::token::TokenType;
 
 pub trait Error: Debug {
     fn message(&self) -> String;
@@ -53,13 +53,13 @@ pub struct UnexpectedError {
 }
 
 impl UnexpectedError {
-    pub fn new(found: Type, expected: Type) -> Box<Self> {
+    pub fn new(found: TokenType, expected: TokenType) -> Box<Self> {
         Box::new(Self {
             msg: format!("Unexpected: {:?}\nExpected: {:?}", found, expected),
         })
     }
 
-    pub fn new_m(found: Type, expected: Vec<Type>) -> Box<Self> {
+    pub fn new_m(found: TokenType, expected: Vec<TokenType>) -> Box<Self> {
         let mut list = format!("{:?}", expected[0]);
         for i in 1..expected.len() {
             list += &format!(", {:?}", expected[i]);

@@ -1,5 +1,5 @@
 use super::chain_reader::ChainReader;
-use super::token::{Token, Type};
+use super::token::{Token, TokenType};
 use super::utils;
 use std::fmt::{Debug, Formatter, Result};
 
@@ -19,19 +19,19 @@ impl Lexer {
 
     pub fn handle_special(&mut self, c: char) -> Option<Token> {
         let type_o = match c {
-            '[' => Some(Type::BlockStart),
-            ']' => Some(Type::BlockEnd),
-            '+' => Some(Type::Addition),
-            '-' => Some(Type::Subtraction),
-            '/' => Some(Type::Division),
-            '*' => Some(Type::Multiplication),
-            '(' => Some(Type::ParentL),
-            ')' => Some(Type::ParentR),
-            ':' => Some(Type::Semicolon),
-            '?' => Some(Type::QuestionMark),
-            '=' => Some(Type::EqualSign),
-            '<' => Some(Type::LessThanSign),
-            '>' => Some(Type::GreaterThanSign),
+            '[' => Some(TokenType::BlockStart),
+            ']' => Some(TokenType::BlockEnd),
+            '+' => Some(TokenType::Addition),
+            '-' => Some(TokenType::Subtraction),
+            '/' => Some(TokenType::Division),
+            '*' => Some(TokenType::Multiplication),
+            '(' => Some(TokenType::ParentL),
+            ')' => Some(TokenType::ParentR),
+            ':' => Some(TokenType::Semicolon),
+            '?' => Some(TokenType::QuestionMark),
+            '=' => Some(TokenType::EqualSign),
+            '<' => Some(TokenType::LessThanSign),
+            '>' => Some(TokenType::GreaterThanSign),
             _ => None,
         };
 
@@ -47,7 +47,7 @@ impl Lexer {
         None
     }
 
-    pub fn handle_double_special(&mut self, c: char, _type: Type) -> Option<Token> {
+    pub fn handle_double_special(&mut self, c: char, _type: TokenType) -> Option<Token> {
         let next_c_o = self.chain_reader.get_current();
         if next_c_o.is_none() {
             return None;
@@ -55,20 +55,20 @@ impl Lexer {
 
         let next_c = next_c_o.unwrap();
         let type_o = match _type {
-            Type::EqualSign => match next_c {
-                '=' => Some(Type::DoubleEqualSign),
+            TokenType::EqualSign => match next_c {
+                '=' => Some(TokenType::DoubleEqualSign),
                 _ => None,
             },
-            Type::LessThanSign => match next_c {
-                '=' => Some(Type::LessThanEqualSign),
+            TokenType::LessThanSign => match next_c {
+                '=' => Some(TokenType::LessThanEqualSign),
                 _ => None,
             },
-            Type::GreaterThanSign => match next_c {
-                '=' => Some(Type::GreaterThanEqualSign),
+            TokenType::GreaterThanSign => match next_c {
+                '=' => Some(TokenType::GreaterThanEqualSign),
                 _ => None,
             },
-            Type::ExclamationMark => match next_c {
-                '=' => Some(Type::NotEqualSign),
+            TokenType::ExclamationMark => match next_c {
+                '=' => Some(TokenType::NotEqualSign),
                 _ => None,
             },
             _ => None,
@@ -99,7 +99,7 @@ impl Lexer {
             self.chain_reader.advance();
         }
 
-        Token::new(raw, Type::Number)
+        Token::new(raw, TokenType::Number)
     }
 
     pub fn handle_identifer(&mut self, c: char) -> Token {
@@ -114,7 +114,7 @@ impl Lexer {
             self.chain_reader.advance();
         }
 
-        Token::new(raw, Type::Identifier)
+        Token::new(raw, TokenType::Identifier)
     }
 
     pub fn handle_string(&mut self) -> Token {
@@ -130,13 +130,13 @@ impl Lexer {
             self.chain_reader.advance();
         }
 
-        Token::new(raw, Type::String)
+        Token::new(raw, TokenType::String)
     }
 
     pub fn handle_keyword(&mut self, s: &str) -> Option<Token> {
         let _type = match s {
-            "number" => Some(Type::KeyNumber),
-            "string" => Some(Type::KeyString),
+            "number" => Some(TokenType::KeyNumber),
+            "string" => Some(TokenType::KeyString),
             _ => None,
         };
 
@@ -154,9 +154,9 @@ impl Lexer {
             let mut token_o = None;
             let mut unvariable = false;
             if let Some(found_token) = self.handle_special(current) {
-                if found_token.r#type == Type::BlockStart {
+                if found_token.r#type == TokenType::BlockStart {
                     self.in_block = true;
-                } else if found_token.r#type == Type::BlockEnd {
+                } else if found_token.r#type == TokenType::BlockEnd {
                     self.in_block = false;
                 }
 
@@ -180,7 +180,7 @@ impl Lexer {
             }
 
             if !unvariable && raw != "" {
-                let tmp_token = Token::new(raw.to_string(), Type::Unvariable);
+                let tmp_token = Token::new(raw.to_string(), TokenType::Unvariable);
                 tokens.push(tmp_token);
                 raw = String::new();
             }
@@ -191,7 +191,7 @@ impl Lexer {
         }
 
         if raw != "" {
-            let tmp_token = Token::new(raw.to_string(), Type::Unvariable);
+            let tmp_token = Token::new(raw.to_string(), TokenType::Unvariable);
             tokens.push(tmp_token);
         }
 

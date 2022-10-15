@@ -1,7 +1,7 @@
 use crate::{
     chain_reader::ChainReader,
     errors::{Error, UnexpectedEndOfFile, UnexpectedError},
-    token::{Token, Type},
+    token::{Token, TokenType},
 };
 
 pub struct BaseParser {
@@ -19,7 +19,7 @@ impl BaseParser {
         self.chain_reader.eat().ok_or(UnexpectedEndOfFile::new())
     }
 
-    pub fn expect(&mut self, r#type: Type) -> Result<Token, Box<dyn Error>> {
+    pub fn expect(&mut self, r#type: TokenType) -> Result<Token, Box<dyn Error>> {
         let token = self
             .chain_reader
             .get_current()
@@ -33,7 +33,7 @@ impl BaseParser {
         Ok(token)
     }
 
-    pub fn expect_m(&mut self, types: Vec<Type>) -> Result<Token, Box<dyn Error>> {
+    pub fn expect_m(&mut self, types: Vec<TokenType>) -> Result<Token, Box<dyn Error>> {
         for r#type in &types {
             let token = self.expect(r#type.clone());
             if token.is_ok() {

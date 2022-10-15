@@ -9,7 +9,7 @@ use crate::{
     },
     errors::Error,
     node::{ExecutableNode, ExecutableNodeReturn},
-    token::Type,
+    token::TokenType,
 };
 
 pub struct Interpreter {
@@ -60,10 +60,10 @@ impl ExecutableNode for NodeBinaryOperator {
             ExecutableNodeReturn::Number(n) => {
                 let rigth = self.right.execute(interpreter)?.to_number()?;
                 let out = match self.operator {
-                    Type::Addition => n + rigth,
-                    Type::Subtraction => n - rigth,
-                    Type::Multiplication => n * rigth,
-                    Type::Division => n / rigth,
+                    TokenType::Addition => n + rigth,
+                    TokenType::Subtraction => n - rigth,
+                    TokenType::Multiplication => n * rigth,
+                    TokenType::Division => n / rigth,
                     _ => panic!("Operator not found (this shouldn't be panicing!"),
                 };
 
@@ -72,7 +72,7 @@ impl ExecutableNode for NodeBinaryOperator {
             ExecutableNodeReturn::String(n) => {
                 let rigth = self.right.execute(interpreter)?.to_string()?;
                 let out = match self.operator {
-                    Type::Addition => n + &rigth,
+                    TokenType::Addition => n + &rigth,
                     _ => panic!("Operator not found (this shouldn't be panicing!)"),
                 };
 
@@ -149,8 +149,12 @@ impl ExecutableNode for NodeTernary {
 impl ExecutableNode for NodeKeyword {
     fn execute(&self, i: &mut Interpreter) -> Result<ExecutableNodeReturn, Box<dyn Error>> {
         Ok(match self.keyword {
-            Type::KeyNumber => ExecutableNodeReturn::Number(self.content.execute(i)?.to_number()?),
-            Type::KeyString => ExecutableNodeReturn::String(self.content.execute(i)?.to_string()?),
+            TokenType::KeyNumber => {
+                ExecutableNodeReturn::Number(self.content.execute(i)?.to_number()?)
+            }
+            TokenType::KeyString => {
+                ExecutableNodeReturn::String(self.content.execute(i)?.to_string()?)
+            }
             _ => panic!("djijdiw"),
         })
     }

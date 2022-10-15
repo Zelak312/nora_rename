@@ -1,7 +1,7 @@
 use std::fmt::{Debug, Formatter, Result};
 
 #[derive(PartialEq, Debug, Clone)]
-pub enum Type {
+pub enum TokenType {
     Unvariable,
 
     Identifier,
@@ -37,11 +37,11 @@ pub enum Type {
 #[derive(Clone)]
 pub struct Token {
     pub raw: String,
-    pub r#type: Type,
+    pub r#type: TokenType,
 }
 
 impl Token {
-    pub fn new(raw: String, r#type: Type) -> Self {
+    pub fn new(raw: String, r#type: TokenType) -> Self {
         Self { raw, r#type }
     }
 }

@@ -1,9 +1,9 @@
-use crate::{node::ExecutableNode, token::Type};
+use crate::{node::ExecutableNode, token::TokenType};
 use std::{fmt::Debug, rc::Rc};
 
 #[derive(Debug)]
 pub struct NodeBinaryOperator {
-    pub operator: Type,
+    pub operator: TokenType,
     pub left: Rc<dyn ExecutableNode>,
     pub right: Rc<dyn ExecutableNode>,
 }
@@ -37,7 +37,7 @@ pub struct NodeNumber {
 
 #[derive(Debug)]
 pub struct NodeCondition {
-    pub operator: Type,
+    pub operator: TokenType,
     pub left: Rc<dyn ExecutableNode>,
     pub right: Rc<dyn ExecutableNode>,
 }
@@ -51,6 +51,6 @@ pub struct NodeTernary {
 
 #[derive(Debug)]
 pub struct NodeKeyword {
-    pub keyword: Type,
+    pub keyword: TokenType,
     pub content: Rc<dyn ExecutableNode>,
 }

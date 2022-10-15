@@ -8,7 +8,7 @@ use crate::{
     base_parser::BaseParser,
     errors::{BasicError, Error},
     node::ExecutableNode,
-    token::{Token, Type},
+    token::{Token, TokenType},
 };
 
 pub struct Parser {
@@ -25,7 +25,7 @@ impl Parser {
     pub fn content_all(&mut self, start: &str) -> String {
         let mut content = String::from(start);
         while let Some(token) = self.base_parser.chain_reader.get_current() {
-            if token.r#type == Type::BlockStart {
+            if token.r#type == TokenType::BlockStart {
                 break;
             }
 
@@ -39,7 +39,7 @@ impl Parser {
     pub fn parse(&mut self) -> Result<Rc<dyn ExecutableNode>, Box<dyn Error>> {
         let token = self.base_parser.any()?;
         match token.r#type {
-            Type::BlockStart => {
+            TokenType::BlockStart => {
                 let content = self.parse_inner_block()?;
                 let mut block_node = NodeBlock {
                     content,
@@ -67,12 +67,12 @@ impl Parser {
     }
 
     pub fn parse_identifier(&mut self) -> Result<Rc<dyn ExecutableNode>, Box<dyn Error>> {
-        let token = self.base_parser.expect(Type::Identifier)?;
+        let token = self.base_parser.expect(TokenType::Identifier)?;
         Ok(Rc::new(NodeIdentifer { content: token.raw }))
     }
 
     pub fn parse_string(&mut self) -> Result<Rc<dyn ExecutableNode>, Box<dyn Error>> {
-        let token = self.base_parser.expect(Type::String)?;
+        let token = self.base_parser.expect(TokenType::String)?;
         Ok(Rc::new(NodeString { content: token.raw }))
     }
 
@@ -80,8 +80,8 @@ impl Parser {
         // check if it's an unary
         let unary = self
             .base_parser
-            .expect_m(vec![Type::Addition, Type::Subtraction]);
-        let token = self.base_parser.expect(Type::Number)?;
+            .expect_m(vec![TokenType::Addition, TokenType::Subtraction]);
+        let token = self.base_parser.expect(TokenType::Number)?;
         let content = (unary.map_or("".to_owned(), |t| t.raw).to_owned() + &token.raw)
             .parse::<f64>()
             .map_err(|_| BasicError::new("ss".to_owned()))?;
@@ -110,10 +110,10 @@ impl Parser {
     pub fn parse_keyword(&mut self) -> Result<Rc<dyn ExecutableNode>, Box<dyn Error>> {
         let keyword = self
             .base_parser
-            .expect_m(vec![Type::KeyNumber, Type::KeyString])?;
-        self.base_parser.expect(Type::ParentL)?;
+            .expect_m(vec![TokenType::KeyNumber, TokenType::KeyString])?;
+        self.base_parser.expect(TokenType::ParentL)?;
         let content = self.parse_ternary()?;
-        self.base_parser.expect(Type::ParentR)?;
+        self.base_parser.expect(TokenType::ParentR)?;
 
         Ok(Rc::new(NodeKeyword {
             keyword: keyword.r#type,
@@ -125,7 +125,7 @@ impl Parser {
         let mut left = self.parse_binary_pow_div()?;
         while let Ok(operator) = self
             .base_parser
-            .expect_m(vec![Type::Addition, Type::Subtraction])
+            .expect_m(vec![TokenType::Addition, TokenType::Subtraction])
         {
             let right = self.parse_binary_pow_div()?;
             left = Rc::new(NodeBinaryOperator {
@@ -142,7 +142,7 @@ impl Parser {
         let mut left = self.parse_binary_parenthese()?;
         while let Ok(operator) = self
             .base_parser
-            .expect_m(vec![Type::Multiplication, Type::Division])
+            .expect_m(vec![TokenType::Multiplication, TokenType::Division])
         {
             let right = self.parse_binary_parenthese()?;
             left = Rc::new(NodeBinaryOperator {
@@ -156,9 +156,9 @@ impl Parser {
     }
 
     pub fn parse_binary_parenthese(&mut self) -> Result<Rc<dyn ExecutableNode>, Box<dyn Error>> {
-        if let Ok(_) = self.base_parser.expect(Type::ParentL) {
+        if let Ok(_) = self.base_parser.expect(TokenType::ParentL) {
             let math = self.parse_ternary()?;
-            self.base_parser.expect(Type::ParentR)?;
+            self.base_parser.expect(TokenType::ParentR)?;
             return Ok(math);
         }
 
@@ -167,15 +167,15 @@ impl Parser {
 
     pub fn parse_inner_block(&mut self) -> Result<Rc<dyn ExecutableNode>, Box<dyn Error>> {
         let node = self.parse_ternary()?;
-        self.base_parser.expect(Type::BlockEnd)?;
+        self.base_parser.expect(TokenType::BlockEnd)?;
         Ok(node)
     }
 
     pub fn parse_ternary(&mut self) -> Result<Rc<dyn ExecutableNode>, Box<dyn Error>> {
         let condition = self.parse_condition()?;
-        if self.base_parser.expect(Type::QuestionMark).is_ok() {
+        if self.base_parser.expect(TokenType::QuestionMark).is_ok() {
             let left = self.parse_ternary()?;
-            self.base_parser.expect(Type::Semicolon)?;
+            self.base_parser.expect(TokenType::Semicolon)?;
             let right = self.parse_ternary()?;
 
             return Ok(Rc::new(NodeTernary {
@@ -191,11 +191,11 @@ impl Parser {
     pub fn parse_condition(&mut self) -> Result<Rc<dyn ExecutableNode>, Box<dyn Error>> {
         let mut left = self.parse_binary_operation()?;
         while let Ok(operator) = self.base_parser.expect_m(vec![
-            Type::LessThanSign,
-            Type::LessThanEqualSign,
-            Type::GreaterThanSign,
-            Type::GreaterThanEqualSign,
-            Type::DoubleEqualSign,
+            TokenType::LessThanSign,
+            TokenType::LessThanEqualSign,
+            TokenType::GreaterThanSign,
+            TokenType::GreaterThanEqualSign,
+            TokenType::DoubleEqualSign,
         ]) {
             let right = self.parse_binary_operation()?;
             left = Rc::new(NodeCondition {
