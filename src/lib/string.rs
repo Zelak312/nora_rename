@@ -4,13 +4,7 @@ use super::{number::NNumber, traits::To};
 
 #[derive(PartialEq)]
 pub struct NString {
-    inner_value: String,
-}
-
-impl NString {
-    pub fn new(inner_value: String) -> Self {
-        Self { inner_value }
-    }
+    pub inner_value: String,
 }
 
 impl To<NNumber> for NString {
@@ -20,6 +14,8 @@ impl To<NNumber> for NString {
             .parse::<f64>()
             .map_err(|_| BasicError::new("dwjdi".to_owned()))?;
 
-        Ok(NNumber::new(result))
+        Ok(NNumber {
+            inner_value: result,
+        })
     }
 }

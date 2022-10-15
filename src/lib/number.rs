@@ -4,18 +4,14 @@ use super::{boolean::NBoolean, string::NString, traits::To};
 
 #[derive(PartialEq, PartialOrd)]
 pub struct NNumber {
-    inner_value: f64,
-}
-
-impl NNumber {
-    pub fn new(inner_value: f64) -> Self {
-        Self { inner_value }
-    }
+    pub inner_value: f64,
 }
 
 impl To<NString> for NNumber {
     fn to(&self) -> Result<NString, Box<dyn crate::errors::Error>> {
-        Ok(NString::new(self.inner_value.to_string()))
+        Ok(NString {
+            inner_value: self.inner_value.to_string(),
+        })
     }
 }
 
@@ -29,6 +25,8 @@ impl To<NBoolean> for NNumber {
             Err(BasicError::new("834572bhjer".to_owned()))
         }?;
 
-        Ok(NBoolean::new(result))
+        Ok(NBoolean {
+            inner_value: result,
+        })
     }
 }
