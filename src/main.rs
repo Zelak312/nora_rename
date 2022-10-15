@@ -4,6 +4,7 @@ mod chain_reader;
 mod errors;
 mod interpreter;
 mod lexer;
+mod lib;
 mod node;
 mod parser;
 mod token;
