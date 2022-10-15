@@ -1,6 +1,8 @@
-use crate::errors::{BasicError, Error};
-
-use super::{number::NNumber, traits::To};
+use super::number::NNumber;
+use crate::{
+    errors::{BasicError, Error},
+    lib::traits::To,
+};
 
 #[derive(PartialEq)]
 pub struct NString {

@@ -1,6 +1,5 @@
-use crate::errors::BasicError;
-
-use super::{boolean::NBoolean, string::NString, traits::To};
+use super::{boolean::NBoolean, string::NString};
+use crate::{errors::BasicError, lib::traits::To};
 
 #[derive(PartialEq, PartialOrd)]
 pub struct NNumber {

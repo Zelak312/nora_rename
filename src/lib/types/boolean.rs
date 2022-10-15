@@ -1,4 +1,5 @@
-use super::{number::NNumber, string::NString, traits::To};
+use super::{number::NNumber, string::NString};
+use crate::lib::traits::To;
 
 #[derive(PartialEq)]
 pub struct NBoolean {
