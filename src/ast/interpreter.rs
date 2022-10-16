@@ -2,8 +2,10 @@ use std::{collections::HashMap, rc::Rc};
 
 use regex::{CaptureNames, Captures};
 
+use crate::lib::types::boolean::NBoolean;
 use crate::lib::types::number::NNumber;
 use crate::lib::types::string::NString;
+use crate::utils::equal_utils;
 use crate::{errors::Error, lib::object_type::ObjectType, tokenizer::token::TokenType};
 
 use super::nodes;
@@ -128,8 +130,20 @@ impl nodes::ExecutableNode for nodes::NodeNumber {
 }
 
 impl nodes::ExecutableNode for nodes::NodeCondition {
-    fn execute(&self, _: &mut Interpreter) -> Result<ObjectType, Box<dyn Error>> {
-        todo!()
+    fn execute(&self, i: &mut Interpreter) -> Result<ObjectType, Box<dyn Error>> {
+        let inner_value = match self.left.execute(i)? {
+            ObjectType::NBoolean(n) => {
+                equal_utils::partial_eq(&self.operator, n, self.right.execute(i)?.into_boolean()?)?
+            }
+            ObjectType::NString(n) => {
+                equal_utils::partial_eq(&self.operator, n, self.right.execute(i)?.into_string()?)?
+            }
+            ObjectType::NNumber(n) => {
+                equal_utils::partial_ord(&self.operator, n, self.right.execute(i)?.into_number()?)?
+            }
+        };
+
+        Ok(ObjectType::NBoolean(NBoolean { inner_value }))
     }
 }
 impl nodes::ExecutableNode for nodes::NodeTernary {
