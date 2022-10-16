@@ -1,13 +1,7 @@
 mod ast;
-mod base_parser;
-mod chain_reader;
 mod errors;
-mod interpreter;
-mod lexer;
 mod lib;
-mod node;
-mod parser;
-mod token;
+mod tokenizer;
 mod utils;
 
 use std::fs;
@@ -15,7 +9,10 @@ use std::fs;
 use clap::Parser;
 use regex::Regex;
 
-use crate::interpreter::Interpreter;
+use crate::{
+    ast::{interpreter::Interpreter, parser},
+    tokenizer::lexer,
+};
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
@@ -69,9 +66,9 @@ fn main() {
             let sh = interpreter
                 .execute(node.clone())
                 .expect("nice")
-                .string()
+                .into_string()
                 .expect("sshesh");
-            println!("{} -> {}", &file_name, sh);
+            println!("{} -> {}", &file_name, sh.inner_value);
 
             interpreter.update_count();
             count += 1;

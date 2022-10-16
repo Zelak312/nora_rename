@@ -1,7 +1,8 @@
-use super::chain_reader::ChainReader;
-use super::token::{Token, TokenType};
-use super::utils;
 use std::fmt::{Debug, Formatter, Result};
+
+use crate::utils::{chain_reader::ChainReader, string_utils};
+
+use super::token::{Token, TokenType};
 
 pub struct Lexer {
     chain_reader: ChainReader<char>,
@@ -106,7 +107,7 @@ impl Lexer {
         let mut raw = c.to_string();
         self.chain_reader.advance();
         while let Some(current) = self.chain_reader.get_current() {
-            if !utils::is_identifer(current) {
+            if !string_utils::is_identifer(current) {
                 break;
             }
 
@@ -165,7 +166,7 @@ impl Lexer {
                 token_o = Some(self.handle_number(current));
             } else if current == '"' {
                 token_o = Some(self.handle_string());
-            } else if utils::is_identifer(current) {
+            } else if string_utils::is_identifer(current) {
                 token_o = Some(self.handle_identifer(current));
                 if let Some(keyword) = self.handle_keyword(&token_o.as_ref().unwrap().raw) {
                     token_o = Some(keyword)

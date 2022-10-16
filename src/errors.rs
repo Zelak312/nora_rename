@@ -1,7 +1,6 @@
 use std::fmt::{Debug, Display};
 
-use crate::token::TokenType;
-
+use crate::tokenizer::token::TokenType;
 pub trait Error: Debug {
     fn message(&self) -> String;
 }

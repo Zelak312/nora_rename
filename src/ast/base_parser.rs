@@ -1,7 +1,7 @@
 use crate::{
-    chain_reader::ChainReader,
     errors::{Error, UnexpectedEndOfFile, UnexpectedError},
-    token::{Token, TokenType},
+    tokenizer::token::{Token, TokenType},
+    utils::chain_reader::ChainReader,
 };
 
 pub struct BaseParser {

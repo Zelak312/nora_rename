@@ -1,16 +1,13 @@
 use super::number::NNumber;
-use crate::{
-    errors::{BasicError, Error},
-    lib::traits::To,
-};
+use crate::{errors::BasicError, lib::object_type::IntoConv};
 
 #[derive(PartialEq)]
 pub struct NString {
     pub inner_value: String,
 }
 
-impl To<NNumber> for NString {
-    fn to(&self) -> Result<NNumber, Box<dyn Error>> {
+impl Into<IntoConv<NNumber>> for NString {
+    fn into(self) -> IntoConv<NNumber> {
         let result = self
             .inner_value
             .parse::<f64>()

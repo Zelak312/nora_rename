@@ -1,2 +1,2 @@
-pub mod traits;
+pub mod object_type;
 pub mod types;
