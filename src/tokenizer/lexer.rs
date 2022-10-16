@@ -121,10 +121,19 @@ impl Lexer {
     pub fn handle_string(&mut self) -> Token {
         let mut raw = String::new();
         self.chain_reader.advance();
-        while let Some(current) = self.chain_reader.get_current() {
+        while let Some(mut current) = self.chain_reader.get_current() {
             if current == '"' {
                 self.chain_reader.advance();
                 break;
+            }
+
+            if current == '\\' {
+                // Skip stuff
+                self.chain_reader.advance();
+                current = self
+                    .chain_reader
+                    .get_current()
+                    .expect("Invalid escape sequence");
             }
 
             raw += &current.to_string();
