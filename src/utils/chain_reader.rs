@@ -39,6 +39,10 @@ where
 
         return token;
     }
+
+    pub fn get_pos(&self) -> usize {
+        self.pos
+    }
 }
 
 impl<T> Debug for ChainReader<T>

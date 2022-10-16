@@ -1,8 +1,11 @@
 use std::rc::Rc;
 
+use owo_colors::OwoColorize;
+
 use crate::{
-    errors::{BasicError, Error},
+    errors::{BasicError, Error, LinePointingError},
     tokenizer::token::{Token, TokenType},
+    utils::string_utils,
 };
 
 use super::{base_parser::BaseParser, nodes};
@@ -12,9 +15,9 @@ pub struct Parser {
 }
 
 impl Parser {
-    pub fn new(tokens: Vec<Token>) -> Self {
+    pub fn new(tokens: Vec<Token>, code: String) -> Self {
         Self {
-            base_parser: BaseParser::new(tokens),
+            base_parser: BaseParser::new(tokens, code),
         }
     }
 
@@ -25,7 +28,7 @@ impl Parser {
                 break;
             }
 
-            content += &token.raw;
+            content += &token.content;
             self.base_parser.chain_reader.advance();
         }
 
@@ -48,7 +51,7 @@ impl Parser {
                 Ok(Rc::new(block_node))
             }
             _ => {
-                let content = self.content_all(&token.raw);
+                let content = self.content_all(&token.content);
                 let mut content_node = nodes::NodeContent {
                     content,
                     next: None,
@@ -64,12 +67,16 @@ impl Parser {
 
     pub fn parse_identifier(&mut self) -> Result<Rc<dyn nodes::ExecutableNode>, Box<dyn Error>> {
         let token = self.base_parser.expect(TokenType::Identifier)?;
-        Ok(Rc::new(nodes::NodeIdentifer { content: token.raw }))
+        Ok(Rc::new(nodes::NodeIdentifer {
+            content: token.content,
+        }))
     }
 
     pub fn parse_string(&mut self) -> Result<Rc<dyn nodes::ExecutableNode>, Box<dyn Error>> {
         let token = self.base_parser.expect(TokenType::String)?;
-        Ok(Rc::new(nodes::NodeString { content: token.raw }))
+        Ok(Rc::new(nodes::NodeString {
+            content: token.content,
+        }))
     }
 
     pub fn parse_number(&mut self) -> Result<Rc<dyn nodes::ExecutableNode>, Box<dyn Error>> {
@@ -78,7 +85,7 @@ impl Parser {
             .base_parser
             .expect_m(vec![TokenType::Addition, TokenType::Subtraction]);
         let token = self.base_parser.expect(TokenType::Number)?;
-        let content = (unary.map_or("".to_owned(), |t| t.raw).to_owned() + &token.raw)
+        let content = (unary.map_or("".to_owned(), |t| t.content).to_owned() + &token.content)
             .parse::<f64>()
             .map_err(|_| BasicError::new("ss".to_owned()))?;
         Ok(Rc::new(nodes::NodeNumber { content }))
@@ -100,7 +107,36 @@ impl Parser {
             return string;
         }
 
-        self.parse_number()
+        let number = self.parse_number();
+        if number.is_ok() {
+            return number;
+        }
+
+        let token = self
+            .base_parser
+            .chain_reader
+            .get_current()
+            .ok_or(BasicError::new("Unexpected end of input".to_owned()))?;
+        Err(LinePointingError::new(
+            &format!(
+                "Unexpected ({:?}), expected ({})",
+                token.r#type.blue(),
+                string_utils::join_vec(
+                    vec![
+                        TokenType::KeyNumber,
+                        TokenType::KeyString,
+                        TokenType::Identifier,
+                        TokenType::String,
+                        TokenType::Number
+                    ],
+                    ", "
+                )
+                .blue()
+            ),
+            &self.base_parser.get_code(),
+            token.start,
+            token.length,
+        ))
     }
 
     pub fn parse_keyword(&mut self) -> Result<Rc<dyn nodes::ExecutableNode>, Box<dyn Error>> {

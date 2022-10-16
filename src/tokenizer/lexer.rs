@@ -19,6 +19,7 @@ impl Lexer {
     }
 
     pub fn handle_special(&mut self, c: char) -> Option<Token> {
+        let start = self.chain_reader.get_pos();
         let type_o = match c {
             '[' => Some(TokenType::BlockStart),
             ']' => Some(TokenType::BlockEnd),
@@ -33,22 +34,28 @@ impl Lexer {
             '=' => Some(TokenType::EqualSign),
             '<' => Some(TokenType::LessThanSign),
             '>' => Some(TokenType::GreaterThanSign),
+            '!' => Some(TokenType::ExclamationMark),
             _ => None,
         };
 
         if let Some(_type) = type_o {
             self.chain_reader.advance();
-            if let Some(token) = self.handle_double_special(c, _type.clone()) {
+            if let Some(token) = self.handle_double_special(c, _type.clone(), start) {
                 return Some(token);
             }
 
-            return Some(Token::new(c.to_string(), _type));
+            return Some(Token::new(&c.to_string(), _type, start, 1));
         }
 
         None
     }
 
-    pub fn handle_double_special(&mut self, c: char, _type: TokenType) -> Option<Token> {
+    pub fn handle_double_special(
+        &mut self,
+        c: char,
+        _type: TokenType,
+        start: usize,
+    ) -> Option<Token> {
         let next_c_o = self.chain_reader.get_current();
         if next_c_o.is_none() {
             return None;
@@ -77,7 +84,12 @@ impl Lexer {
 
         if let Some(_type_d) = type_o {
             self.chain_reader.advance();
-            return Some(Token::new(c.to_string() + &next_c.to_string(), _type_d));
+            return Some(Token::new(
+                &(c.to_string() + &next_c.to_string()),
+                _type_d,
+                start,
+                2,
+            ));
         }
 
         None
@@ -85,6 +97,7 @@ impl Lexer {
 
     pub fn handle_number(&mut self, c: char) -> Token {
         let mut raw = c.to_string();
+        let start = self.chain_reader.get_pos();
         self.chain_reader.advance();
         while let Some(current) = self.chain_reader.get_current() {
             if current == '_' {
@@ -100,11 +113,12 @@ impl Lexer {
             self.chain_reader.advance();
         }
 
-        Token::new(raw, TokenType::Number)
+        Token::new(&raw, TokenType::Number, start, raw.len())
     }
 
     pub fn handle_identifer(&mut self, c: char) -> Token {
         let mut raw = c.to_string();
+        let start = self.chain_reader.get_pos();
         self.chain_reader.advance();
         while let Some(current) = self.chain_reader.get_current() {
             if !string_utils::is_identifer(current) {
@@ -115,11 +129,12 @@ impl Lexer {
             self.chain_reader.advance();
         }
 
-        Token::new(raw, TokenType::Identifier)
+        Token::new(&raw, TokenType::Identifier, start, raw.len())
     }
 
     pub fn handle_string(&mut self) -> Token {
         let mut raw = String::new();
+        let start = self.chain_reader.get_pos();
         self.chain_reader.advance();
         while let Some(mut current) = self.chain_reader.get_current() {
             if current == '"' {
@@ -140,10 +155,10 @@ impl Lexer {
             self.chain_reader.advance();
         }
 
-        Token::new(raw, TokenType::String)
+        Token::new(&raw, TokenType::String, start, raw.len() + 2)
     }
 
-    pub fn handle_keyword(&mut self, s: &str) -> Option<Token> {
+    pub fn handle_keyword(&mut self, s: &str, start: usize) -> Option<Token> {
         let _type = match s {
             "number" => Some(TokenType::KeyNumber),
             "string" => Some(TokenType::KeyString),
@@ -151,7 +166,7 @@ impl Lexer {
         };
 
         if _type.is_some() {
-            return Some(Token::new(s.to_owned(), _type.unwrap()));
+            return Some(Token::new(s, _type.unwrap(), start, s.len()));
         }
 
         None
@@ -160,6 +175,7 @@ impl Lexer {
     pub fn tokenize(&mut self) -> Vec<Token> {
         let mut tokens = vec![];
         let mut raw = String::new();
+        let mut raw_start = self.chain_reader.get_pos();
         while let Some(current) = self.chain_reader.get_current() {
             let mut token_o = None;
             let mut unvariable = false;
@@ -176,8 +192,11 @@ impl Lexer {
             } else if current == '"' {
                 token_o = Some(self.handle_string());
             } else if string_utils::is_identifer(current) {
+                let start = self.chain_reader.get_pos();
                 token_o = Some(self.handle_identifer(current));
-                if let Some(keyword) = self.handle_keyword(&token_o.as_ref().unwrap().raw) {
+                if let Some(keyword) =
+                    self.handle_keyword(&token_o.as_ref().unwrap().content, start)
+                {
                     token_o = Some(keyword)
                 }
             } else if !self.in_block {
@@ -190,9 +209,10 @@ impl Lexer {
             }
 
             if !unvariable && raw != "" {
-                let tmp_token = Token::new(raw.to_string(), TokenType::Unvariable);
+                let tmp_token = Token::new(&raw, TokenType::Unvariable, raw_start, raw.len());
                 tokens.push(tmp_token);
                 raw = String::new();
+                raw_start = self.chain_reader.get_pos();
             }
 
             if let Some(token) = token_o {
@@ -201,7 +221,7 @@ impl Lexer {
         }
 
         if raw != "" {
-            let tmp_token = Token::new(raw.to_string(), TokenType::Unvariable);
+            let tmp_token = Token::new(&raw, TokenType::Unvariable, raw_start, raw.len());
             tokens.push(tmp_token);
         }
 

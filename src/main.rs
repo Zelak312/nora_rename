@@ -36,7 +36,7 @@ fn main() {
     let tokens = lex.tokenize();
     println!("{:?}", tokens);
 
-    let mut tree = parser::Parser::new(tokens);
+    let mut tree = parser::Parser::new(tokens, cli.output.clone());
     let node_result = tree.parse();
     if let Err(err) = node_result {
         panic!("{}", err);

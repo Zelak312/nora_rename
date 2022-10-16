@@ -36,20 +36,27 @@ pub enum TokenType {
 
 #[derive(Clone)]
 pub struct Token {
-    pub raw: String,
+    pub content: String,
     pub r#type: TokenType,
+    pub start: usize,
+    pub length: usize,
 }
 
 impl Token {
-    pub fn new(raw: String, r#type: TokenType) -> Self {
-        Self { raw, r#type }
+    pub fn new(raw: &str, r#type: TokenType, start: usize, length: usize) -> Self {
+        Self {
+            content: raw.to_owned(),
+            r#type,
+            start,
+            length,
+        }
     }
 }
 
 impl Debug for Token {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         f.debug_struct("Token")
-            .field("raw", &self.raw)
+            .field("raw", &self.content)
             .field("type", &self.r#type)
             .finish()
     }

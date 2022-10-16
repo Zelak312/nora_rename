@@ -1,6 +1,6 @@
 use std::fmt::{Debug, Display};
 
-use crate::tokenizer::token::TokenType;
+use owo_colors::OwoColorize;
 pub trait Error: Debug {
     fn message(&self) -> String;
 }
@@ -13,18 +13,6 @@ impl Display for dyn Error {
 
 impl From<Box<BasicError>> for Box<dyn Error> {
     fn from(b: Box<BasicError>) -> Self {
-        b
-    }
-}
-
-impl From<Box<UnexpectedError>> for Box<dyn Error> {
-    fn from(b: Box<UnexpectedError>) -> Self {
-        b
-    }
-}
-
-impl From<Box<UnexpectedEndOfFile>> for Box<dyn Error> {
-    fn from(b: Box<UnexpectedEndOfFile>) -> Self {
         b
     }
 }
@@ -47,50 +35,33 @@ impl Error for BasicError {
 }
 
 #[derive(Debug)]
-pub struct UnexpectedError {
+pub struct LinePointingError {
     msg: String,
+    code: String,
+    point_start: usize,
+    point_length: usize,
 }
 
-impl UnexpectedError {
-    pub fn new(found: TokenType, expected: TokenType) -> Box<Self> {
+impl LinePointingError {
+    pub fn new(msg: &str, code: &str, point_start: usize, point_length: usize) -> Box<Self> {
         Box::new(Self {
-            msg: format!("Unexpected: {:?}\nExpected: {:?}", found, expected),
-        })
-    }
-
-    pub fn new_m(found: TokenType, expected: Vec<TokenType>) -> Box<Self> {
-        let mut list = format!("{:?}", expected[0]);
-        for i in 1..expected.len() {
-            list += &format!(", {:?}", expected[i]);
-        }
-
-        Box::new(Self {
-            msg: format!("Unexpected: {:?}\nExpected: {:?}", found, list),
+            msg: msg.to_owned(),
+            code: code.to_owned(),
+            point_start,
+            point_length,
         })
     }
 }
 
-impl Error for UnexpectedError {
+impl Error for LinePointingError {
     fn message(&self) -> String {
-        self.msg.clone()
-    }
-}
-
-#[derive(Debug)]
-pub struct UnexpectedEndOfFile {
-    msg: String,
-}
-
-impl UnexpectedEndOfFile {
-    pub fn new() -> Box<Self> {
-        Box::new(Self {
-            msg: format!("Unexpected end of file"),
-        })
-    }
-}
-
-impl Error for UnexpectedEndOfFile {
-    fn message(&self) -> String {
-        self.msg.clone()
+        format!(
+            "{}: {}\n\t{}\n\t{}{}",
+            "error".red(),
+            self.msg,
+            self.code,
+            " ".repeat(self.point_start),
+            "^".repeat(self.point_length).red()
+        )
     }
 }
