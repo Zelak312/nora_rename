@@ -4,9 +4,10 @@ mod lib;
 mod tokenizer;
 mod utils;
 
-use std::fs;
+use std::{fs, process::exit};
 
 use clap::Parser;
+use errors::Error;
 use regex::Regex;
 
 use crate::{
@@ -25,25 +26,26 @@ struct Cli {
     output: String,
 }
 
-fn main() {
+fn main() -> Result<(), Box<dyn Error>> {
     let cli = Cli::parse();
     let regex = Regex::new(&cli.input).expect("Invalid regex");
     let path = "./";
     let paths = fs::read_dir(path).unwrap();
 
-    println!("{:?}", cli.output.clone());
+    // println!("{:?}", cli.output.clone());
     let mut lex = lexer::Lexer::new(cli.output.clone());
     let tokens = lex.tokenize();
-    println!("{:?}", tokens);
+    // println!("{:?}", tokens);
 
     let mut tree = parser::Parser::new(tokens, cli.output.clone());
     let node_result = tree.parse();
-    if let Err(err) = node_result {
-        panic!("{}", err);
+    if let Err(e) = node_result {
+        println!("{}", e.message());
+        exit(1);
     }
 
     let node = node_result.unwrap();
-    println!("{:?}", node);
+    // println!("{:?}", node);
 
     let mut count = 1;
     for path in paths {
@@ -63,15 +65,25 @@ fn main() {
             let mut interpreter = Interpreter::new(count, captures, regex.capture_names());
             // TODO: interpreter should only be made once
             // And handle parsing multiple asts
-            let sh = interpreter
-                .execute(node.clone())
-                .expect("nice")
-                .into_string()
-                .expect("sshesh");
-            println!("{} -> {}", &file_name, sh.inner_value);
+            let result = interpreter.execute(node.clone());
+
+            if let Err(e) = result {
+                println!("{}", e.message());
+                exit(1);
+            }
+
+            let sh = result.unwrap().into_string();
+            if let Err(e) = sh {
+                println!("{}", e.message());
+                exit(1);
+            }
+
+            println!("{} -> {}", &file_name, sh.unwrap().inner_value);
 
             interpreter.update_count();
             count += 1;
         }
     }
+
+    Ok(())
 }

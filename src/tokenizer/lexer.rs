@@ -149,6 +149,7 @@ impl Lexer {
                     .chain_reader
                     .get_current()
                     .expect("Invalid escape sequence");
+                // This error shouldn't be thrown normally (normally)
             }
 
             raw += &current.to_string();

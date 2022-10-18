@@ -2,6 +2,7 @@ use std::{collections::HashMap, rc::Rc};
 
 use regex::{CaptureNames, Captures};
 
+use crate::errors::BasicError;
 use crate::lib::types::boolean::NBoolean;
 use crate::lib::types::number::NNumber;
 use crate::lib::types::string::NString;
@@ -106,7 +107,12 @@ impl nodes::ExecutableNode for nodes::NodeContent {
 
 impl nodes::ExecutableNode for nodes::NodeIdentifer {
     fn execute(&self, i: &mut Interpreter) -> Result<ObjectType, Box<dyn Error>> {
-        let capture = i.scope.get(&self.content).expect("not here");
+        // TODO: should make this a linePointingError
+        // Need to implement nodes start and length for this to happen
+        let capture = i.scope.get(&self.content).ok_or(BasicError::new(format!(
+            "Couldn't find variable: {}",
+            &self.content
+        )))?;
         Ok(ObjectType::NString(NString {
             inner_value: capture.to_owned(),
         }))
