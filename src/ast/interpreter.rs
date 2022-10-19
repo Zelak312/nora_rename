@@ -13,14 +13,23 @@ use super::nodes;
 
 pub struct Interpreter {
     scope: HashMap<String, String>,
-    count: i64,
+    count: i32,
 }
 
 impl Interpreter {
-    pub fn new(count: i64, captures: Captures, names: CaptureNames) -> Self {
-        let mut map = HashMap::new();
-        map.insert(String::from("#count"), count.to_string());
+    pub fn new() -> Self {
+        Self {
+            scope: HashMap::new(),
+            count: 0,
+        }
+    }
 
+    fn insert_special_vars(&mut self) {
+        self.scope
+            .insert(String::from("#count"), self.count.to_string());
+    }
+
+    fn insert_captures(&mut self, captures: &Captures, names: CaptureNames) {
         for name in names {
             if let Some(m) = name {
                 let cap = captures.name(m);
@@ -28,24 +37,30 @@ impl Interpreter {
                     continue;
                 }
 
-                map.insert(m.to_owned(), cap.unwrap().as_str().to_owned());
+                self.scope
+                    .insert(m.to_owned(), cap.unwrap().as_str().to_owned());
             }
         }
-        Self { scope: map, count }
+
+        for i in 0..captures.len() {
+            if let Some(cap) = captures.get(i) {
+                self.scope
+                    .insert(String::from("#") + &i.to_string(), cap.as_str().to_string());
+            }
+        }
     }
 
     pub fn execute(
         &mut self,
+        captures: &Captures,
+        names: CaptureNames,
         node: Rc<dyn nodes::ExecutableNode>,
     ) -> Result<ObjectType, Box<dyn Error>> {
-        node.execute(self)
-    }
-
-    pub fn update_count(&mut self) {
-        // TODO: change count to work
+        self.insert_special_vars();
+        self.insert_captures(captures, names);
+        let res = node.execute(self);
         self.count += 1;
-        self.scope
-            .insert("#count".to_owned(), self.count.to_string());
+        res
     }
 }
 
