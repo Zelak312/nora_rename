@@ -4,8 +4,14 @@ mod lib;
 mod tokenizer;
 mod utils;
 
-use std::{fs, process::exit};
+use std::{
+    fs::{self, DirEntry},
+    io,
+    process::exit,
+    rc::Rc,
+};
 
+use ast::nodes::ExecutableNode;
 use clap::Parser;
 use errors::Error;
 use regex::Regex;
@@ -18,12 +24,15 @@ use crate::{
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
 struct Cli {
-    /// Optional name to operate on
     #[clap(value_parser)]
     input: String,
 
     #[clap(value_parser)]
     output: String,
+
+    /// Skip the preview (useful in scripts)
+    #[clap(short, long)]
+    skip: bool,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -31,11 +40,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     let regex = Regex::new(&cli.input).expect("Invalid regex");
     let path = "./";
     let paths = fs::read_dir(path).unwrap();
+    let mut vector_paths = vec![];
+    for path in paths {
+        vector_paths.push(path.expect("Error when getting files"));
+    }
 
-    // println!("{:?}", cli.output.clone());
     let mut lex = lexer::Lexer::new(cli.output.clone());
     let tokens = lex.tokenize();
-    // println!("{:?}", tokens);
 
     let mut tree = parser::Parser::new(tokens, cli.output.clone());
     let node_result = tree.parse();
@@ -45,23 +56,37 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 
     let node = node_result.unwrap();
-    // println!("{:?}", node);
 
+    if cli.skip {
+        run_interpreter(false, &vector_paths, &regex, &node);
+    } else {
+        run_interpreter(true, &vector_paths, &regex, &node);
+        println!("Rename files ? (y\\N)");
+        let mut a = String::new();
+        io::stdin().read_line(&mut a).expect("Failed to read input");
+
+        if a.to_lowercase().trim() == "y" {
+            run_interpreter(false, &vector_paths, &regex, &node);
+        }
+    }
+    Ok(())
+}
+
+fn run_interpreter(
+    visualise: bool,
+    paths: &Vec<DirEntry>,
+    regex: &Regex,
+    node: &Rc<dyn ExecutableNode>,
+) {
     let mut interpreter = Interpreter::new();
     for path in paths {
-        if path.is_err() {
-            panic!("{}", path.err().unwrap());
-        }
-
-        let curr_path = path.unwrap();
-        let file_name = curr_path
+        let file_name = path
             .file_name()
             .to_str()
             .expect("Couldn't get file_name")
             .to_owned();
 
         if let Some(captures) = regex.captures(&file_name) {
-            // println!("{:?}", captures);
             let result = interpreter.execute(&captures, regex.capture_names(), node.clone());
 
             if let Err(e) = result {
@@ -75,9 +100,12 @@ fn main() -> Result<(), Box<dyn Error>> {
                 exit(1);
             }
 
-            println!("{} -> {}", &file_name, sh.unwrap().inner_value);
+            if visualise {
+                println!("{} -> {}", &file_name, sh.unwrap().inner_value);
+            } else {
+                fs::rename(path.path().to_str().unwrap(), sh.unwrap().inner_value)
+                    .expect("Couldn't rename a file");
+            }
         }
     }
-
-    Ok(())
 }
