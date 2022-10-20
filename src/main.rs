@@ -5,7 +5,8 @@ mod tokenizer;
 mod utils;
 
 use std::{
-    fs::{self, DirEntry},
+    collections::HashMap,
+    fs::{read_dir, rename},
     io,
     process::exit,
     rc::Rc,
@@ -39,11 +40,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     let cli = Cli::parse();
     let regex = Regex::new(&cli.input).expect("Invalid regex");
     let path = "./";
-    let paths = fs::read_dir(path).unwrap();
-    let mut vector_paths = vec![];
-    for path in paths {
-        vector_paths.push(path.expect("Error when getting files"));
-    }
 
     let mut lex = lexer::Lexer::new(cli.output.clone());
     let tokens = lex.tokenize();
@@ -56,39 +52,55 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 
     let node = node_result.unwrap();
+    let file_rename = run_interpreter(path, &regex, &node);
+    if file_rename.len() == 0 {
+        println!("No files to rename, exiting");
+        exit(1);
+    }
+
+    for (file_name, new_file_name) in file_rename.iter() {
+        if cli.skip {
+            rename_file(&path, &file_name, &new_file_name);
+        } else {
+            println!("{} -> {}", &file_name, &new_file_name);
+        }
+    }
 
     if cli.skip {
-        run_interpreter(false, &vector_paths, &regex, &node);
-    } else {
-        run_interpreter(true, &vector_paths, &regex, &node);
-        println!("Rename files ? (y\\N)");
-        let mut a = String::new();
-        io::stdin().read_line(&mut a).expect("Failed to read input");
+        exit(0);
+    }
 
-        if a.to_lowercase().trim() == "y" {
-            run_interpreter(false, &vector_paths, &regex, &node);
-        }
+    println!("Rename files ? (y\\N)");
+    let mut a = String::new();
+    io::stdin().read_line(&mut a).expect("Failed to read input");
+
+    if a.to_lowercase().trim() != "y" {
+        exit(0);
+    }
+
+    for (file_name, new_file_name) in file_rename.iter() {
+        rename_file(&path, &file_name, &new_file_name);
     }
     Ok(())
 }
 
 fn run_interpreter(
-    visualise: bool,
-    paths: &Vec<DirEntry>,
+    path: &str,
     regex: &Regex,
     node: &Rc<dyn ExecutableNode>,
-) {
+) -> HashMap<String, String> {
+    let paths = read_dir(path).expect("Couldn't read dir");
+    let mut file_rename = HashMap::new();
     let mut interpreter = Interpreter::new();
-    let mut found = false;
     for path in paths {
         let file_name = path
+            .expect("Couldn't read file")
             .file_name()
             .to_str()
             .expect("Couldn't get file_name")
             .to_owned();
 
         if let Some(captures) = regex.captures(&file_name) {
-            found = true;
             let result = interpreter.execute(&captures, regex.capture_names(), node.clone());
 
             if let Err(e) = result {
@@ -102,17 +114,13 @@ fn run_interpreter(
                 exit(1);
             }
 
-            if visualise {
-                println!("{} -> {}", &file_name, sh.unwrap().inner_value);
-            } else {
-                fs::rename(path.path().to_str().unwrap(), sh.unwrap().inner_value)
-                    .expect("Couldn't rename a file");
-            }
+            file_rename.insert(file_name, sh.unwrap().inner_value);
         }
     }
 
-    if !found {
-        println!("No files matching the regex, exiting");
-        exit(1);
-    }
+    file_rename
+}
+
+fn rename_file(path: &str, old_name: &str, new_name: &str) {
+    rename(path.to_owned() + old_name, path.to_owned() + new_name).expect("Couldn't rename file");
 }
