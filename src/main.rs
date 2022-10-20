@@ -79,6 +79,7 @@ fn run_interpreter(
     node: &Rc<dyn ExecutableNode>,
 ) {
     let mut interpreter = Interpreter::new();
+    let mut found = false;
     for path in paths {
         let file_name = path
             .file_name()
@@ -87,6 +88,7 @@ fn run_interpreter(
             .to_owned();
 
         if let Some(captures) = regex.captures(&file_name) {
+            found = true;
             let result = interpreter.execute(&captures, regex.capture_names(), node.clone());
 
             if let Err(e) = result {
@@ -107,5 +109,10 @@ fn run_interpreter(
                     .expect("Couldn't rename a file");
             }
         }
+    }
+
+    if !found {
+        println!("No files matching the regex, exiting");
+        exit(1);
     }
 }
