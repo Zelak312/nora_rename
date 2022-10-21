@@ -25,11 +25,11 @@ nora [OPTIONS] <INPUT> <OUTPUT>
 
 ## Options
 
-| short | long        | description                                         |
-| ----- | ----------- | --------------------------------------------------- |
-| `-h`  | `--help`    | Print help information                              |
-| `-s`  | `--skip`    | Skip the renaming preview and directly rename files |
-| `-V`  | `--version` | Print version information                           |
+| commands            | description                                         |
+| ------------------- | --------------------------------------------------- |
+| `-h` \| `--help`    | Print help information                              |
+| `-s` \| `--skip`    | Skip the renaming preview and directly rename files |
+| `-V` \| `--version` | Print version information                           |
 
 ## Input
 
@@ -73,8 +73,7 @@ Example:
 [#1 == 10 ? 1 : 2]
 ```
 
-Dependant on the condition, if it's true 1 will be returned from it
-or 2 will be returned if the condition is false
+Dependant on the condition, if it's true 1 will be returned otherwise 2 will be returned
 
 The condition operator can be any of these `==`, `!=`, `<`, `<=`, `>`, `>=`
 
@@ -112,7 +111,7 @@ Example:
 ["hello " + "world"]
 ```
 
-It is important to note that concatenation of string will only occur when the left paramter is a string (like JavaScript would)
+It is important to note that concatenation of strings will only occur when the left paramter is a string (like JavaScript would)
 
 For example:
 
