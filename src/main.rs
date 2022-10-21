@@ -41,6 +41,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let regex = Regex::new(&cli.input).expect("Invalid regex");
     let path = "./";
 
+    println!("{}", cli.output.clone());
     let mut lex = lexer::Lexer::new(cli.output.clone());
     let tokens = lex.tokenize();
 

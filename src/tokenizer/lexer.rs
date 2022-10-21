@@ -132,12 +132,12 @@ impl Lexer {
         Token::new(&raw, TokenType::Identifier, start, raw.len())
     }
 
-    pub fn handle_string(&mut self) -> Token {
+    pub fn handle_string(&mut self, c: char) -> Token {
         let mut raw = String::new();
         let start = self.chain_reader.get_pos();
         self.chain_reader.advance();
         while let Some(mut current) = self.chain_reader.get_current() {
-            if current == '"' {
+            if current == c {
                 self.chain_reader.advance();
                 break;
             }
@@ -190,8 +190,8 @@ impl Lexer {
                 token_o = Some(found_token);
             } else if current.is_numeric() {
                 token_o = Some(self.handle_number(current));
-            } else if current == '"' {
-                token_o = Some(self.handle_string());
+            } else if current == '"' || current == '\'' {
+                token_o = Some(self.handle_string(current));
             } else if string_utils::is_identifer(current) {
                 let start = self.chain_reader.get_pos();
                 token_o = Some(self.handle_identifer(current));
