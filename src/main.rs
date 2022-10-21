@@ -41,7 +41,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     let regex = Regex::new(&cli.input).expect("Invalid regex");
     let path = "./";
 
-    println!("{}", cli.output.clone());
     let mut lex = lexer::Lexer::new(cli.output.clone());
     let tokens = lex.tokenize();
 
@@ -60,23 +59,23 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 
     for (file_name, new_file_name) in file_rename.iter() {
-        if cli.skip {
-            rename_file(&path, &file_name, &new_file_name);
-        } else {
-            println!("{} -> {}", &file_name, &new_file_name);
+        println!("{} -> {}", &file_name, &new_file_name);
+    }
+
+    // Detect duplicates
+    if find_duplicates(&file_rename) {
+        println!("Found name duplicates, cannot process renaming");
+        exit(1);
+    }
+
+    if !cli.skip {
+        println!("Rename files ? (y\\N)");
+        let mut a = String::new();
+        io::stdin().read_line(&mut a).expect("Failed to read input");
+
+        if a.to_lowercase().trim() != "y" {
+            exit(0);
         }
-    }
-
-    if cli.skip {
-        exit(0);
-    }
-
-    println!("Rename files ? (y\\N)");
-    let mut a = String::new();
-    io::stdin().read_line(&mut a).expect("Failed to read input");
-
-    if a.to_lowercase().trim() != "y" {
-        exit(0);
     }
 
     for (file_name, new_file_name) in file_rename.iter() {
@@ -115,7 +114,7 @@ fn run_interpreter(
                 exit(1);
             }
 
-            file_rename.insert(file_name, sh.unwrap().inner_value);
+            file_rename.insert(file_name, sh.unwrap().inner_value.trim().to_owned());
         }
     }
 
@@ -124,4 +123,16 @@ fn run_interpreter(
 
 fn rename_file(path: &str, old_name: &str, new_name: &str) {
     rename(path.to_owned() + old_name, path.to_owned() + new_name).expect("Couldn't rename file");
+}
+
+fn find_duplicates(file_rename: &HashMap<String, String>) -> bool {
+    for (k, v) in file_rename.iter() {
+        for (k2, v2) in file_rename.iter() {
+            if v == v2 && k != k2 {
+                return true;
+            }
+        }
+    }
+
+    false
 }
