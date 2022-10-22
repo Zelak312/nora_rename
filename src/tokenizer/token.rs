@@ -29,6 +29,7 @@ pub enum TokenType {
     LessThanEqualSign,
     GreaterThanSign,
     GreaterThanEqualSign,
+    QuestionMarkGreaterThan,
 
     KeyNumber,
     KeyString,

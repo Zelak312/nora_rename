@@ -8,7 +8,10 @@ use crate::{
     utils::string_utils,
 };
 
-use super::{base_parser::BaseParser, nodes};
+use super::{
+    base_parser::BaseParser,
+    nodes::{self, NodeString},
+};
 
 pub struct Parser {
     base_parser: BaseParser,
@@ -211,10 +214,22 @@ impl Parser {
 
     pub fn parse_ternary(&mut self) -> Result<Rc<dyn nodes::ExecutableNode>, Box<dyn Error>> {
         let condition = self.parse_condition()?;
-        if self.base_parser.expect(TokenType::QuestionMark).is_ok() {
+        let token = self.base_parser.expect_m(vec![
+            TokenType::QuestionMark,
+            TokenType::QuestionMarkGreaterThan,
+        ]);
+        if token.is_ok() {
             let left = self.parse_ternary()?;
-            self.base_parser.expect(TokenType::Semicolon)?;
-            let right = self.parse_ternary()?;
+            let right;
+            if token.unwrap().r#type == TokenType::QuestionMark {
+                self.base_parser.expect(TokenType::Semicolon)?;
+                right = self.parse_ternary()?;
+            } else {
+                // Skip and place ""
+                right = Rc::new(NodeString {
+                    content: String::new(),
+                });
+            }
 
             return Ok(Rc::new(nodes::NodeTernary {
                 condition,
