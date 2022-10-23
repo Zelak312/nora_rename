@@ -75,6 +75,8 @@ impl nodes::ExecutableNode for nodes::NodeBinaryOperator {
                     TokenType::Subtraction => n.inner_value - rigth.inner_value,
                     TokenType::Multiplication => n.inner_value * rigth.inner_value,
                     TokenType::Division => n.inner_value / rigth.inner_value,
+                    TokenType::Power => n.inner_value.powf(rigth.inner_value),
+                    TokenType::Log => n.inner_value.log(rigth.inner_value),
                     _ => panic!("Operator not found (this shouldn't be panicing!"),
                 };
 

@@ -14,6 +14,8 @@ pub enum TokenType {
     Subtraction,
     Division,
     Multiplication,
+    Power,
+    Log,
 
     ParentL,
     ParentR,
