@@ -34,6 +34,10 @@ struct Cli {
     /// Skip the preview (useful in scripts)
     #[clap(short, long)]
     skip: bool,
+
+    /// Pretty_print the output
+    #[clap(short, long)]
+    pretty_print: bool,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -58,10 +62,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         exit(1);
     }
 
-    for (file_name, new_file_name) in file_rename.iter() {
-        println!("{} -> {}", &file_name, &new_file_name);
-    }
-
     // Detect duplicates
     if find_duplicates(&file_rename) {
         println!("Found name duplicates, cannot process renaming");
@@ -69,6 +69,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 
     if !cli.skip {
+        for (file_name, new_file_name) in file_rename.iter() {
+            if cli.pretty_print {
+                println!("{}\n ╰─> {}", file_name, new_file_name);
+            } else {
+                println!("{} -> {}", file_name, new_file_name);
+            }
+        }
+
         println!("Rename files ? (y\\N)");
         let mut a = String::new();
         io::stdin().read_line(&mut a).expect("Failed to read input");
