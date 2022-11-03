@@ -89,6 +89,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     for (file_name, new_file_name) in file_rename.iter() {
         rename_file(&path, &file_name, &new_file_name);
     }
+
+    println!("Done renaming {} files", file_rename.len());
     Ok(())
 }
 
