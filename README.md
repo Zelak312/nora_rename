@@ -79,6 +79,22 @@ Dependant on the condition, if it's true 1 will be returned otherwise 2 will be 
 
 The condition operator can be any of these `==`, `!=`, `<`, `<=`, `>`, `>=`
 
+## Ternary second parameter skip
+
+If you you want to do a ternary as a normal if statement to write something if it's true but nothing if not
+Example:
+
+```
+[#1 == 10 ? "something" : ""]
+```
+
+The skip operator can be used to simplify this
+Example:
+
+```
+[#1 == 10 ?> "something"]
+```
+
 # Math expression
 
 Example:
@@ -87,7 +103,10 @@ Example:
 [10 + 20]
 ```
 
-currently supported operations are `+`, `-`, `*`, `/`, `(`, `)`
+currently supported operations are `+`, `-`, `*`, `/`, `**`, `//`, `(`, `)`
+
+`**`: Power opertaor
+`//`: Log operator
 
 It is important to note that math expressions will only be interpreted as mathematical expressions when the left paramter is a number (like JavaScript would)
 
