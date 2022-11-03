@@ -75,7 +75,9 @@ impl nodes::ExecutableNode for nodes::NodeBinaryOperator {
                     TokenType::Subtraction => n.inner_value - rigth.inner_value,
                     TokenType::Multiplication => n.inner_value * rigth.inner_value,
                     TokenType::Division => n.inner_value / rigth.inner_value,
-                    _ => panic!("Operator not found (this shouldn't be panicing!"),
+                    TokenType::Power => n.inner_value.powf(rigth.inner_value),
+                    TokenType::Log => n.inner_value.log(rigth.inner_value),
+                    _ => panic!("Operation not found for number"),
                 };
 
                 return Ok(ObjectType::NNumber(NNumber { inner_value }));
@@ -84,7 +86,7 @@ impl nodes::ExecutableNode for nodes::NodeBinaryOperator {
                 let rigth = self.right.execute(interpreter)?.into_string()?;
                 let inner_value = match self.operator {
                     TokenType::Addition => n.inner_value + &rigth.inner_value,
-                    _ => panic!("Operator not found (this shouldn't be panicing!)"),
+                    _ => panic!("Operation not found for string"),
                 };
 
                 return Ok(ObjectType::NString(NString { inner_value }));

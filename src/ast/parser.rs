@@ -8,7 +8,10 @@ use crate::{
     utils::string_utils,
 };
 
-use super::{base_parser::BaseParser, nodes};
+use super::{
+    base_parser::BaseParser,
+    nodes::{self, NodeString},
+};
 
 pub struct Parser {
     base_parser: BaseParser,
@@ -156,12 +159,12 @@ impl Parser {
     pub fn parse_binary_operation(
         &mut self,
     ) -> Result<Rc<dyn nodes::ExecutableNode>, Box<dyn Error>> {
-        let mut left = self.parse_binary_pow_div()?;
+        let mut left = self.parse_binary_mul_div()?;
         while let Ok(operator) = self
             .base_parser
             .expect_m(vec![TokenType::Addition, TokenType::Subtraction])
         {
-            let right = self.parse_binary_pow_div()?;
+            let right = self.parse_binary_mul_div()?;
             left = Rc::new(nodes::NodeBinaryOperator {
                 operator: operator.r#type,
                 left,
@@ -172,13 +175,32 @@ impl Parser {
         Ok(left)
     }
 
-    pub fn parse_binary_pow_div(
+    pub fn parse_binary_mul_div(
+        &mut self,
+    ) -> Result<Rc<dyn nodes::ExecutableNode>, Box<dyn Error>> {
+        let mut left = self.parse_binary_pow_log()?;
+        while let Ok(operator) = self
+            .base_parser
+            .expect_m(vec![TokenType::Multiplication, TokenType::Division])
+        {
+            let right = self.parse_binary_pow_log()?;
+            left = Rc::new(nodes::NodeBinaryOperator {
+                operator: operator.r#type,
+                left,
+                right,
+            });
+        }
+
+        Ok(left)
+    }
+
+    pub fn parse_binary_pow_log(
         &mut self,
     ) -> Result<Rc<dyn nodes::ExecutableNode>, Box<dyn Error>> {
         let mut left = self.parse_binary_parenthese()?;
         while let Ok(operator) = self
             .base_parser
-            .expect_m(vec![TokenType::Multiplication, TokenType::Division])
+            .expect_m(vec![TokenType::Power, TokenType::Log])
         {
             let right = self.parse_binary_parenthese()?;
             left = Rc::new(nodes::NodeBinaryOperator {
@@ -211,10 +233,22 @@ impl Parser {
 
     pub fn parse_ternary(&mut self) -> Result<Rc<dyn nodes::ExecutableNode>, Box<dyn Error>> {
         let condition = self.parse_condition()?;
-        if self.base_parser.expect(TokenType::QuestionMark).is_ok() {
+        let token = self.base_parser.expect_m(vec![
+            TokenType::QuestionMark,
+            TokenType::QuestionMarkGreaterThan,
+        ]);
+        if token.is_ok() {
             let left = self.parse_ternary()?;
-            self.base_parser.expect(TokenType::Semicolon)?;
-            let right = self.parse_ternary()?;
+            let right;
+            if token.unwrap().r#type == TokenType::QuestionMark {
+                self.base_parser.expect(TokenType::Semicolon)?;
+                right = self.parse_ternary()?;
+            } else {
+                // Skip and place ""
+                right = Rc::new(NodeString {
+                    content: String::new(),
+                });
+            }
 
             return Ok(Rc::new(nodes::NodeTernary {
                 condition,

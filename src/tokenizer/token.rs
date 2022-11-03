@@ -14,6 +14,8 @@ pub enum TokenType {
     Subtraction,
     Division,
     Multiplication,
+    Power,
+    Log,
 
     ParentL,
     ParentR,
@@ -29,6 +31,7 @@ pub enum TokenType {
     LessThanEqualSign,
     GreaterThanSign,
     GreaterThanEqualSign,
+    QuestionMarkGreaterThan,
 
     KeyNumber,
     KeyString,

@@ -79,6 +79,18 @@ impl Lexer {
                 '=' => Some(TokenType::NotEqualSign),
                 _ => None,
             },
+            TokenType::QuestionMark => match next_c {
+                '>' => Some(TokenType::QuestionMarkGreaterThan),
+                _ => None,
+            },
+            TokenType::Multiplication => match next_c {
+                '*' => Some(TokenType::Power),
+                _ => None,
+            },
+            TokenType::Division => match next_c {
+                '/' => Some(TokenType::Log),
+                _ => None,
+            },
             _ => None,
         };
 
