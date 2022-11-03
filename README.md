@@ -1,3 +1,5 @@
+[![Rust](https://github.com/Zelak312/nora/actions/workflows/rust_build_test.yml/badge.svg?branch=dev)](https://github.com/Zelak312/nora/actions/workflows/rust_build_test.yml)
+
 # Documentation
 
 -   [What is nora?](#what-is-nora)
