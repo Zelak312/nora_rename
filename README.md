@@ -27,11 +27,12 @@ nora [OPTIONS] <INPUT> <OUTPUT>
 
 ## Options
 
-| commands            | description                                         |
-| ------------------- | --------------------------------------------------- |
-| `-h` \| `--help`    | Print help information                              |
-| `-s` \| `--skip`    | Skip the renaming preview and directly rename files |
-| `-V` \| `--version` | Print version information                           |
+| commands                 | description                                         |
+| ------------------------ | --------------------------------------------------- |
+| `-h` \| `--help`         | Print help information                              |
+| `-s` \| `--skip`         | Skip the renaming preview and directly rename files |
+| `-V` \| `--version`      | Print version information                           |
+| `-p` \| `--pretty_print` | Pretty print the output for easier reading          |
 
 ## Input
 
