@@ -82,7 +82,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         io::stdin().read_line(&mut a).expect("Failed to read input");
 
         if a.to_lowercase().trim() != "y" {
-            println!("Exiting");
+            println!("Exiting without renaming files");
             exit(0);
         }
     }
