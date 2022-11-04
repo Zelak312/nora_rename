@@ -4,7 +4,7 @@ use crate::{
     lib::object_type::IntoConv,
 };
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Eq)]
 pub struct NString {
     pub inner_value: String,
 }

@@ -56,12 +56,7 @@ impl Lexer {
         _type: TokenType,
         start: usize,
     ) -> Option<Token> {
-        let next_c_o = self.chain_reader.get_current();
-        if next_c_o.is_none() {
-            return None;
-        }
-
-        let next_c = next_c_o.unwrap();
+        let next_c = self.chain_reader.get_current()?;
         let type_o = match _type {
             TokenType::EqualSign => match next_c {
                 '=' => Some(TokenType::DoubleEqualSign),
@@ -178,8 +173,8 @@ impl Lexer {
             _ => None,
         };
 
-        if _type.is_some() {
-            return Some(Token::new(s, _type.unwrap(), start, s.len()));
+        if let Some(_type) = _type {
+            return Some(Token::new(s, _type, start, s.len()));
         }
 
         None
@@ -221,7 +216,7 @@ impl Lexer {
                 self.chain_reader.advance();
             }
 
-            if !unvariable && raw != "" {
+            if !unvariable && raw.is_empty() {
                 let tmp_token = Token::new(&raw, TokenType::Unvariable, raw_start, raw.len());
                 tokens.push(tmp_token);
                 raw = String::new();
@@ -233,7 +228,7 @@ impl Lexer {
             }
         }
 
-        if raw != "" {
+        if raw.is_empty() {
             let tmp_token = Token::new(&raw, TokenType::Unvariable, raw_start, raw.len());
             tokens.push(tmp_token);
         }

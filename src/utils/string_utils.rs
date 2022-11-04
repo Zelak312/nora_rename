@@ -8,7 +8,7 @@ pub fn join_vec<T>(v: Vec<T>, sep: &str) -> String
 where
     T: Debug,
 {
-    if v.len() == 0 {
+    if v.is_empty() {
         return String::new();
     }
 

@@ -26,14 +26,14 @@ impl BaseParser {
     pub fn any(&mut self) -> Result<Token, Box<dyn Error>> {
         self.chain_reader
             .eat()
-            .ok_or(BasicError::new("Unexpected end of input".to_owned()))
+            .ok_or_else(|| BasicError::new("Unexpected end of input".to_owned()).into())
     }
 
     pub fn expect(&mut self, r#type: TokenType) -> Result<Token, Box<dyn Error>> {
         let token = self
             .chain_reader
             .get_current()
-            .ok_or(BasicError::new("Unexpected end of input".to_owned()))?;
+            .ok_or_else(|| BasicError::new("Unexpected end of input".to_owned()))?;
 
         if r#type != token.r#type {
             return Err(LinePointingError::new(
@@ -63,7 +63,7 @@ impl BaseParser {
         let token = self
             .chain_reader
             .get_current()
-            .ok_or(BasicError::new("Unexpected end of input".to_owned()))?;
+            .ok_or_else(|| BasicError::new("Unexpected end of input".to_owned()))?;
 
         Err(LinePointingError::new(
             &format!(

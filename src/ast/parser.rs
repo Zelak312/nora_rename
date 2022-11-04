@@ -88,7 +88,7 @@ impl Parser {
             .base_parser
             .expect_m(vec![TokenType::Addition, TokenType::Subtraction]);
         let token = self.base_parser.expect(TokenType::Number)?;
-        let content = (unary.map_or("".to_owned(), |t| t.content).to_owned() + &token.content)
+        let content = (unary.map_or("".to_owned(), |t| t.content) + &token.content)
             .parse::<f64>()
             .map_err(|_| BasicError::new("ss".to_owned()))?;
         Ok(Rc::new(nodes::NodeNumber { content }))
@@ -119,7 +119,7 @@ impl Parser {
             .base_parser
             .chain_reader
             .get_current()
-            .ok_or(BasicError::new("Unexpected end of input".to_owned()))?;
+            .ok_or_else(|| BasicError::new("Unexpected end of input".to_owned()))?;
         Err(LinePointingError::new(
             &format!(
                 "Unexpected ({:?}), expected ({})",
@@ -216,7 +216,7 @@ impl Parser {
     pub fn parse_binary_parenthese(
         &mut self,
     ) -> Result<Rc<dyn nodes::ExecutableNode>, Box<dyn Error>> {
-        if let Ok(_) = self.base_parser.expect(TokenType::ParentL) {
+        if self.base_parser.expect(TokenType::ParentL).is_ok() {
             let math = self.parse_ternary()?;
             self.base_parser.expect(TokenType::ParentR)?;
             return Ok(math);
@@ -237,18 +237,18 @@ impl Parser {
             TokenType::QuestionMark,
             TokenType::QuestionMarkGreaterThan,
         ]);
-        if token.is_ok() {
+
+        if let Ok(token) = token {
             let left = self.parse_ternary()?;
-            let right;
-            if token.unwrap().r#type == TokenType::QuestionMark {
+            let right = if token.r#type == TokenType::QuestionMark {
                 self.base_parser.expect(TokenType::Semicolon)?;
-                right = self.parse_ternary()?;
+                self.parse_ternary()?
             } else {
                 // Skip and place ""
-                right = Rc::new(NodeString {
+                Rc::new(NodeString {
                     content: String::new(),
-                });
-            }
+                })
+            };
 
             return Ok(Rc::new(nodes::NodeTernary {
                 condition,

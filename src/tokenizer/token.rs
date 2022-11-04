@@ -1,6 +1,6 @@
 use std::fmt::{Debug, Formatter, Result};
 
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, Eq, Debug, Clone)]
 pub enum TokenType {
     Unvariable,
 
