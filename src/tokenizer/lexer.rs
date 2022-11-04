@@ -216,7 +216,7 @@ impl Lexer {
                 self.chain_reader.advance();
             }
 
-            if !unvariable && raw.is_empty() {
+            if !unvariable && !raw.is_empty() {
                 let tmp_token = Token::new(&raw, TokenType::Unvariable, raw_start, raw.len());
                 tokens.push(tmp_token);
                 raw = String::new();
@@ -228,7 +228,7 @@ impl Lexer {
             }
         }
 
-        if raw.is_empty() {
+        if !raw.is_empty() {
             let tmp_token = Token::new(&raw, TokenType::Unvariable, raw_start, raw.len());
             tokens.push(tmp_token);
         }

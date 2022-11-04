@@ -84,6 +84,7 @@ impl nodes::ExecutableNode for nodes::NodeBinaryOperator {
                 let rigth = self.right.execute(interpreter)?.into_string()?;
                 let inner_value = match self.operator {
                     TokenType::Addition => n.inner_value + &rigth.inner_value,
+                    TokenType::Subtraction => n.sub(&rigth).inner_value,
                     _ => panic!("Operation not found for string"),
                 };
 
