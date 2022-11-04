@@ -57,7 +57,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let node = node_result.unwrap();
     let file_rename = run_interpreter(path, &regex, &node);
-    if file_rename.len() == 0 {
+    if file_rename.is_empty() {
         println!("No files to rename, exiting");
         exit(1);
     }
@@ -82,13 +82,16 @@ fn main() -> Result<(), Box<dyn Error>> {
         io::stdin().read_line(&mut a).expect("Failed to read input");
 
         if a.to_lowercase().trim() != "y" {
+            println!("Exiting without renaming files");
             exit(0);
         }
     }
 
     for (file_name, new_file_name) in file_rename.iter() {
-        rename_file(&path, &file_name, &new_file_name);
+        rename_file(path, file_name, new_file_name);
     }
+
+    println!("Done renaming {} files", file_rename.len());
     Ok(())
 }
 

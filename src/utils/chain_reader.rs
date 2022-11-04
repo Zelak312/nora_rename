@@ -13,10 +13,7 @@ where
     T: Clone,
 {
     pub fn new(items: Vec<T>) -> Self {
-        Self {
-            pos: 0,
-            items: items,
-        }
+        Self { pos: 0, items }
     }
 
     pub fn advance(&mut self) {
@@ -37,7 +34,7 @@ where
             self.advance();
         }
 
-        return token;
+        token
     }
 
     pub fn get_pos(&self) -> usize {

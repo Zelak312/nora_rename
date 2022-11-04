@@ -61,7 +61,7 @@ The interpreted block can have the following expressions
 
 -   [Ternary expression](#ternary-expression)
 -   [Math expression](#math-expression)
--   [String concatenation](#string-concatenation)
+-   [String concatenation](#string-operation)
 -   [Identifiers](#identifiers)
 -   [String conversion](#string-conversion)
 -   [Number conversion](#number-conversion)
@@ -125,7 +125,9 @@ This will give 1020 since it will convert the left to a string and do a concaten
 
 This will give 30 since the left is a number and it will convert to string to a number automatically
 
-# String concatenation
+# String operation
+
+## Concatenation
 
 Example:
 
@@ -148,6 +150,16 @@ This will give 1020 since it will convert the left to a string and do a concaten
 ```
 
 This will give 30 since the left is a number and it will convert to string to a number automatically
+
+## Subtraction
+
+Example:
+
+```
+["test" - "t"]
+```
+
+This will give the ouput `es`
 
 # Identifiers
 

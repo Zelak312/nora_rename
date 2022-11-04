@@ -2,7 +2,7 @@ use crate::{errors::Error, lib::object_type::IntoConv};
 
 use super::{number::NNumber, string::NString};
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Eq)]
 pub struct NBoolean {
     pub inner_value: bool,
 }
