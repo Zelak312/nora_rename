@@ -61,7 +61,7 @@ The interpreted block can have the following expressions
 
 -   [Ternary expression](#ternary-expression)
 -   [Math expression](#math-expression)
--   [String concatenation](#string-operation)
+-   [String operation](#string-operation)
 -   [Identifiers](#identifiers)
 -   [String conversion](#string-conversion)
 -   [Number conversion](#number-conversion)
