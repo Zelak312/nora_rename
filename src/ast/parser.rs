@@ -160,10 +160,11 @@ impl Parser {
         &mut self,
     ) -> Result<Rc<dyn nodes::ExecutableNode>, Box<dyn Error>> {
         let mut left = self.parse_binary_mul_div()?;
-        while let Ok(operator) = self
-            .base_parser
-            .expect_m(vec![TokenType::Addition, TokenType::Subtraction])
-        {
+        while let Ok(operator) = self.base_parser.expect_m(vec![
+            TokenType::Addition,
+            TokenType::Subtraction,
+            TokenType::DoubleSubtraction,
+        ]) {
             let right = self.parse_binary_mul_div()?;
             left = Rc::new(nodes::NodeBinaryOperator {
                 operator: operator.r#type,

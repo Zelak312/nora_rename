@@ -156,10 +156,20 @@ This will give 30 since the left is a number and it will convert to string to a 
 Example:
 
 ```
-["test" - "t"]
+["testes" - "te"]
 ```
 
-This will give the ouput `es`
+This will give the ouput `stes` which removes the first `te` found
+
+## Multiple Subtraction
+
+Example:
+
+```
+["testes" -- "te"]
+```
+
+This will give the ouput `ss` which removes all `te` found
 
 # Identifiers
 
