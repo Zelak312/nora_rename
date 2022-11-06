@@ -27,7 +27,9 @@ impl TryInto<NBoolean> for NNumber {
         } else if self.inner_value == 0.0 {
             Ok(false)
         } else {
-            Err(BasicError::new("834572bhjer".to_owned()))
+            Err(BasicError::new(
+                "Couldn't convert number to boolean".to_owned(),
+            ))
         }?;
 
         Ok(NBoolean {

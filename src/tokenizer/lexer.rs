@@ -86,6 +86,10 @@ impl Lexer {
                 '/' => Some(TokenType::Log),
                 _ => None,
             },
+            TokenType::Subtraction => match next_c {
+                '-' => Some(TokenType::DoubleSubtraction),
+                _ => None,
+            },
             _ => None,
         };
 

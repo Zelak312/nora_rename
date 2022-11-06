@@ -61,7 +61,7 @@ The interpreted block can have the following expressions
 
 -   [Ternary expression](#ternary-expression)
 -   [Math expression](#math-expression)
--   [String concatenation](#string-operation)
+-   [String operation](#string-operation)
 -   [Identifiers](#identifiers)
 -   [String conversion](#string-conversion)
 -   [Number conversion](#number-conversion)
@@ -156,10 +156,20 @@ This will give 30 since the left is a number and it will convert to string to a 
 Example:
 
 ```
-["test" - "t"]
+["testes" - "te"]
 ```
 
-This will give the ouput `es`
+This will give the ouput `stes` which removes the first `te` found
+
+## Multiple Subtraction
+
+Example:
+
+```
+["testes" -- "te"]
+```
+
+This will give the ouput `ss` which removes all `te` found
 
 # Identifiers
 

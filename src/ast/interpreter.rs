@@ -71,6 +71,7 @@ impl nodes::ExecutableNode for nodes::NodeBinaryOperator {
                 let inner_value = match self.operator {
                     TokenType::Addition => n.inner_value + rigth.inner_value,
                     TokenType::Subtraction => n.inner_value - rigth.inner_value,
+                    TokenType::DoubleSubtraction => n.inner_value + rigth.inner_value,
                     TokenType::Multiplication => n.inner_value * rigth.inner_value,
                     TokenType::Division => n.inner_value / rigth.inner_value,
                     TokenType::Power => n.inner_value.powf(rigth.inner_value),
@@ -85,6 +86,7 @@ impl nodes::ExecutableNode for nodes::NodeBinaryOperator {
                 let inner_value = match self.operator {
                     TokenType::Addition => n.inner_value + &rigth.inner_value,
                     TokenType::Subtraction => n.sub(&rigth).inner_value,
+                    TokenType::DoubleSubtraction => n.sub_multiple(&rigth).inner_value,
                     _ => panic!("Operation not found for string"),
                 };
 
