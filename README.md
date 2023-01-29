@@ -1,4 +1,4 @@
-[![Rust](https://github.com/Zelak312/nora/actions/workflows/rust_build_test.yml/badge.svg?branch=dev)](https://github.com/Zelak312/nora/actions/workflows/rust_build_test.yml)
+[![Rust](https://github.com/Zelak312/nora_rename/actions/workflows/rust_build_test.yml/badge.svg?branch=dev)](https://github.com/Zelak312/nora_rename/actions/workflows/rust_build_test.yml)
 
 # Documentation
 
@@ -22,7 +22,7 @@ Comming soon
 Command line usage
 
 ```
-nora [OPTIONS] <INPUT> <OUTPUT>
+nora_rename [OPTIONS] <INPUT> <OUTPUT>
 ```
 
 ## Options
@@ -240,17 +240,17 @@ Transform the expression between the parenthese to a number
 Rename files from (number).txt to (number).mkv
 
 ```
-nora '(\d+)\..*' '[#1].mkv'
+nora_rename '(\d+)\..*' '[#1].mkv'
 ```
 
 Rename files from (number).txt to (number + 10).txt
 
 ```
-nora '(\d+)\..*' '[number(#1) + 10].txt'
+nora_rename '(\d+)\..*' '[number(#1) + 10].txt'
 ```
 
 Rename files from (number>.txt to (number + 10).txt only if (number) is 0 if not leave it as (number).txt
 
 ```
-nora '(\d+)\..*' '[#1 == 0 ? number(#1) + 10 : #1].txt'
+nora_rename '(\d+)\..*' '[#1 == 0 ? number(#1) + 10 : #1].txt'
 ```
