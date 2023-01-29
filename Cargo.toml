@@ -1,5 +1,6 @@
 [package]
 name = "nora"
+description = "Command line utility for renaming files in batch using regex with advanced control"
 version = "0.1.3"
 edition = "2021"
 authors = ["Zelak <zelak312@gmail.com>"]
