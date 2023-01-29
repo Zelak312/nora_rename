@@ -12,7 +12,7 @@ exclude = [
 ]
 
 [[bin]]
-name = "nora"
+name = "nora_rename"
 
 [dependencies]
 clap = { version = "3.2.22", features = ["derive"] }
