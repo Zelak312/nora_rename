@@ -15,7 +15,13 @@ Any suggestion is appricated (using github issues)
 
 # How to install
 
-Comming soon
+## Using cargo
+
+```
+cargo install nora_rename
+```
+
+Other methods comming soon
 
 # Usage
 
