@@ -1,5 +1,5 @@
 use crate::{
-    ast::interpreter::Interpreter, errors::Error, lib::object_type::ObjectType,
+    ast::interpreter::Interpreter, errors::Error, library::object_type::ObjectType,
     tokenizer::token::TokenType,
 };
 use std::{fmt::Debug, rc::Rc};

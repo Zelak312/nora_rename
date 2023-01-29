@@ -1,7 +1,7 @@
 use super::number::NNumber;
 use crate::{
     errors::{BasicError, Error},
-    lib::object_type::IntoConv,
+    library::object_type::IntoConv,
 };
 
 #[derive(PartialEq, Eq)]

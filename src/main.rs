@@ -1,6 +1,6 @@
 mod ast;
 mod errors;
-mod lib;
+mod library;
 mod tokenizer;
 mod utils;
 

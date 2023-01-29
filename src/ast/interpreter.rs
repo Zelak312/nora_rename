@@ -3,11 +3,11 @@ use std::{collections::HashMap, rc::Rc};
 use regex::{CaptureNames, Captures};
 
 use crate::errors::BasicError;
-use crate::lib::types::boolean::NBoolean;
-use crate::lib::types::number::NNumber;
-use crate::lib::types::string::NString;
+use crate::library::types::boolean::NBoolean;
+use crate::library::types::number::NNumber;
+use crate::library::types::string::NString;
 use crate::utils::equal_utils;
-use crate::{errors::Error, lib::object_type::ObjectType, tokenizer::token::TokenType};
+use crate::{errors::Error, library::object_type::ObjectType, tokenizer::token::TokenType};
 
 use super::nodes;
 
