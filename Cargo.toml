@@ -12,7 +12,8 @@ exclude = [
 ]
 
 [[bin]]
-name = "nora_rename"
+name = "nora"
+path = "src/main.rs"
 
 [dependencies]
 clap = { version = "3.2.22", features = ["derive"] }

@@ -28,7 +28,7 @@ Other methods comming soon
 Command line usage
 
 ```
-nora_rename [OPTIONS] <INPUT> <OUTPUT>
+nora [OPTIONS] <INPUT> <OUTPUT>
 ```
 
 ## Options
@@ -246,17 +246,17 @@ Transform the expression between the parenthese to a number
 Rename files from (number).txt to (number).mkv
 
 ```
-nora_rename '(\d+)\..*' '[#1].mkv'
+nora '(\d+)\..*' '[#1].mkv'
 ```
 
 Rename files from (number).txt to (number + 10).txt
 
 ```
-nora_rename '(\d+)\..*' '[number(#1) + 10].txt'
+nora '(\d+)\..*' '[number(#1) + 10].txt'
 ```
 
 Rename files from (number>.txt to (number + 10).txt only if (number) is 0 if not leave it as (number).txt
 
 ```
-nora_rename '(\d+)\..*' '[#1 == 0 ? number(#1) + 10 : #1].txt'
+nora '(\d+)\..*' '[#1 == 0 ? number(#1) + 10 : #1].txt'
 ```
