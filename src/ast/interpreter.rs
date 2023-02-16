@@ -93,7 +93,7 @@ impl nodes::ExecutableNode for nodes::NodeBinaryOperator {
 
                 Ok(ObjectType::NString(NString { inner_value }))
             }
-            _ => panic!("Cannot do binary operation on this type"),
+            _ => panic!("Cannot do binary operation on this type"), // TODO: better error
         }
     }
 }
@@ -185,7 +185,16 @@ impl nodes::ExecutableNode for nodes::NodeTernary {
 impl nodes::ExecutableNode for nodes::NodeKeyword {
     fn execute(&self, i: &mut Interpreter) -> Result<ObjectType, Box<dyn Error>> {
         Ok(match self.keyword {
-            TokenType::KeyNumber => ObjectType::NNumber(self.content.execute(i)?.into_number()?),
+            TokenType::KeyNumber => {
+                let mut num = self.content.execute(i)?.into_number()?;
+                if !self.options.is_empty() {
+                    let pow_val =
+                        (10 as f64).powf(self.options[0].execute(i)?.into_number()?.inner_value);
+                    num.inner_value = (num.inner_value * pow_val).round() / pow_val;
+                }
+
+                ObjectType::NNumber(num)
+            }
             TokenType::KeyString => ObjectType::NString(self.content.execute(i)?.into_string()?),
             _ => panic!("djijdiw"),
         })

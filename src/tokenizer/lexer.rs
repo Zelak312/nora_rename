@@ -30,6 +30,7 @@ impl Lexer {
             '%' => Some(TokenType::Modulo),
             '(' => Some(TokenType::ParentL),
             ')' => Some(TokenType::ParentR),
+            ',' => Some(TokenType::Comma),
             ':' => Some(TokenType::Semicolon),
             '?' => Some(TokenType::QuestionMark),
             '=' => Some(TokenType::EqualSign),

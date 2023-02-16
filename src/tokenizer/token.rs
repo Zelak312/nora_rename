@@ -21,6 +21,7 @@ pub enum TokenType {
     ParentL,
     ParentR,
 
+    Comma,
     Semicolon,
     QuestionMark,
     ExclamationMark,

@@ -43,6 +43,7 @@ pub struct NodeIdentifer {
 pub struct NodeKeyword {
     pub keyword: TokenType,
     pub content: Rc<dyn ExecutableNode>,
+    pub options: Vec<Rc<dyn ExecutableNode>>,
 }
 
 #[derive(Debug)]

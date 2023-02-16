@@ -148,11 +148,18 @@ impl Parser {
             .expect_m(vec![TokenType::KeyNumber, TokenType::KeyString])?;
         self.base_parser.expect(TokenType::ParentL)?;
         let content = self.parse_ternary()?;
-        self.base_parser.expect(TokenType::ParentR)?;
+        let mut options = Vec::new();
+
+        let mut current_option = self.base_parser.any()?;
+        while current_option.r#type == TokenType::Comma {
+            options.push(self.parse_basic_type()?);
+            current_option = self.base_parser.any()?;
+        }
 
         Ok(Rc::new(nodes::NodeKeyword {
             keyword: keyword.r#type,
             content,
+            options,
         }))
     }
 
