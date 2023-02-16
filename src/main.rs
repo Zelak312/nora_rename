@@ -5,7 +5,6 @@ mod tokenizer;
 mod utils;
 
 use std::{
-    collections::HashMap,
     fs::{read_dir, rename},
     io,
     process::exit,
@@ -15,6 +14,7 @@ use std::{
 use ast::nodes::ExecutableNode;
 use clap::Parser;
 use errors::Error;
+use indexmap::IndexMap;
 use regex::Regex;
 
 use crate::{
@@ -99,9 +99,9 @@ fn run_interpreter(
     path: &str,
     regex: &Regex,
     node: &Rc<dyn ExecutableNode>,
-) -> HashMap<String, String> {
+) -> IndexMap<String, String> {
     let paths = read_dir(path).expect("Couldn't read dir");
-    let mut file_rename = HashMap::new();
+    let mut file_rename = IndexMap::new();
     let mut interpreter = Interpreter::new();
     for path in paths {
         let file_name = path
@@ -136,7 +136,7 @@ fn rename_file(path: &str, old_name: &str, new_name: &str) {
     rename(path.to_owned() + old_name, path.to_owned() + new_name).expect("Couldn't rename file");
 }
 
-fn find_duplicates(file_rename: &HashMap<String, String>) -> bool {
+fn find_duplicates(file_rename: &IndexMap<String, String>) -> bool {
     for (k, v) in file_rename.iter() {
         for (k2, v2) in file_rename.iter() {
             if v == v2 && k != k2 {
