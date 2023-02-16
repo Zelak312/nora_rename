@@ -16,6 +16,7 @@ pub enum TokenType {
     Multiplication,
     Power,
     Log,
+    Modulo,
 
     ParentL,
     ParentR,

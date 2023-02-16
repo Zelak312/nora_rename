@@ -27,6 +27,7 @@ impl Lexer {
             '-' => Some(TokenType::Subtraction),
             '/' => Some(TokenType::Division),
             '*' => Some(TokenType::Multiplication),
+            '%' => Some(TokenType::Modulo),
             '(' => Some(TokenType::ParentL),
             ')' => Some(TokenType::ParentR),
             ':' => Some(TokenType::Semicolon),

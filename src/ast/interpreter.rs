@@ -76,6 +76,7 @@ impl nodes::ExecutableNode for nodes::NodeBinaryOperator {
                     TokenType::Division => n.inner_value / rigth.inner_value,
                     TokenType::Power => n.inner_value.powf(rigth.inner_value),
                     TokenType::Log => n.inner_value.log(rigth.inner_value),
+                    TokenType::Modulo => n.inner_value % rigth.inner_value,
                     _ => panic!("Operation not found for number"),
                 };
 

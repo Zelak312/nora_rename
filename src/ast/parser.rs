@@ -164,6 +164,7 @@ impl Parser {
             TokenType::Addition,
             TokenType::Subtraction,
             TokenType::DoubleSubtraction,
+            TokenType::Modulo,
         ]) {
             let right = self.parse_binary_mul_div()?;
             left = Rc::new(nodes::NodeBinaryOperator {
