@@ -189,7 +189,7 @@ impl nodes::ExecutableNode for nodes::NodeKeyword {
                 let mut num = self.content.execute(i)?.into_number()?;
                 if !self.options.is_empty() {
                     let pow_val =
-                        (10 as f64).powf(self.options[0].execute(i)?.into_number()?.inner_value);
+                        10f64.powf(self.options[0].execute(i)?.into_number()?.inner_value);
                     num.inner_value = (num.inner_value * pow_val).round() / pow_val;
                 }
 
