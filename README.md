@@ -240,6 +240,13 @@ Example:
 ```
 
 Transform the expression between the parenthese to a number
+The second argument can also control the number of decimal
+
+```
+[number(10.532, 2)]
+```
+
+Will result in 10.53
 
 # Example Usage
 
