@@ -115,7 +115,7 @@ currently supported operations are `+`, `-`, `*`, `/`, `**`, `//`, `(`, `)`
 `**`: Power opertaor
 `//`: Log operator
 
-It is important to note that math expressions will only be interpreted as mathematical expressions when the left paramter is a number (like JavaScript would)
+It is important to note that math expressions will only be interpreted as mathematical expressions when the left paramter is a number
 
 For example:
 
@@ -141,7 +141,7 @@ Example:
 ["hello " + "world"]
 ```
 
-It is important to note that concatenation of strings will only occur when the left paramter is a string (like JavaScript would)
+It is important to note that concatenation of strings will only occur when the left paramter is a string
 
 For example:
 
