@@ -16,7 +16,7 @@ name = "nora"
 path = "src/main.rs"
 
 [dependencies]
-clap = { version = "4.3.9", features = ["derive"] }
+clap = { version = "4.3.10", features = ["derive"] }
 indexmap = "1.9.3"
 owo-colors = "3.5.0"
 regex = "1.8.4"
