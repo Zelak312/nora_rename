@@ -19,4 +19,4 @@ path = "src/main.rs"
 clap = { version = "4.3.11", features = ["derive"] }
 indexmap = "2.0.0"
 owo-colors = "3.5.0"
-regex = "1.9.0"
+regex = "1.9.1"
