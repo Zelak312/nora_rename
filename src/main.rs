@@ -15,7 +15,7 @@ use ast::nodes::ExecutableNode;
 use clap::Parser;
 use errors::Error;
 use indexmap::IndexMap;
-use regex::Regex;
+use regex::{Regex, RegexBuilder};
 
 use crate::{
     ast::{interpreter::Interpreter, parser},
@@ -38,11 +38,18 @@ struct Cli {
     /// Pretty_print the output
     #[clap(short, long)]
     pretty_print: bool,
+
+    /// Case sensitive regex
+    #[clap(short, long)]
+    case_sensitive: bool,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
     let cli = Cli::parse();
-    let regex = Regex::new(&cli.input).expect("Invalid regex");
+    let regex = RegexBuilder::new(&cli.input)
+        .case_insensitive(!cli.case_sensitive)
+        .build()
+        .expect("Invalid regex");
     let path = "./";
 
     let mut lex = lexer::Lexer::new(cli.output.clone());
