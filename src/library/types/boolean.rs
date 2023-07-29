@@ -1,4 +1,4 @@
-use crate::{errors::Error, lib::object_type::IntoConv};
+use crate::{errors::Error, library::object_type::IntoConv};
 
 use super::{number::NNumber, string::NString};
 

@@ -1,6 +1,6 @@
 use crate::{
     errors::{BasicError, Error},
-    lib::object_type::IntoConv,
+    library::object_type::IntoConv,
 };
 
 use super::{boolean::NBoolean, string::NString};

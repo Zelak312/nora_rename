@@ -28,6 +28,14 @@ where
         Some(self.items[self.pos].clone())
     }
 
+    pub fn get_next(&mut self) -> Option<T> {
+        if self.pos + 1 >= self.items.len() {
+            return None;
+        }
+
+        Some(self.items[self.pos + 1].clone())
+    }
+
     pub fn eat(&mut self) -> Option<T> {
         let token = self.get_current();
         if token.is_some() {
@@ -49,7 +57,7 @@ where
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         f.debug_struct("StringReader")
             .field("pos", &self.pos)
+            .field("items", &self.items)
             .finish()
-        // .field("items", &self.items)
     }
 }

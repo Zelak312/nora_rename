@@ -1,6 +1,6 @@
 mod ast;
 mod errors;
-mod lib;
+mod library;
 mod tokenizer;
 mod utils;
 
@@ -15,7 +15,8 @@ use std::{
 use ast::nodes::ExecutableNode;
 use clap::Parser;
 use errors::Error;
-use regex::Regex;
+use indexmap::IndexMap;
+use regex::{Regex, RegexBuilder};
 
 use crate::{
     ast::{interpreter::Interpreter, parser},
@@ -38,11 +39,23 @@ struct Cli {
     /// Pretty_print the output
     #[clap(short, long)]
     pretty_print: bool,
+
+    /// Case sensitive regex
+    #[clap(short, long)]
+    case_sensitive: bool,
+
+    /// Global regex
+    /// Removes the global match from the captures
+    #[clap(short, long)]
+    global: bool,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
     let cli = Cli::parse();
-    let regex = Regex::new(&cli.input).expect("Invalid regex");
+    let regex = RegexBuilder::new(&cli.input)
+        .case_insensitive(!cli.case_sensitive)
+        .build()
+        .expect("Invalid regex");
     let path = "./";
 
     let mut lex = lexer::Lexer::new(cli.output.clone());
@@ -56,7 +69,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 
     let node = node_result.unwrap();
-    let file_rename = run_interpreter(path, &regex, &node);
+    let file_rename = run_interpreter(path, &regex, &node, cli.global);
     if file_rename.is_empty() {
         println!("No files to rename, exiting");
         exit(1);
@@ -99,9 +112,10 @@ fn run_interpreter(
     path: &str,
     regex: &Regex,
     node: &Rc<dyn ExecutableNode>,
-) -> HashMap<String, String> {
+    global: bool,
+) -> IndexMap<String, String> {
     let paths = read_dir(path).expect("Couldn't read dir");
-    let mut file_rename = HashMap::new();
+    let mut file_rename = IndexMap::new();
     let mut interpreter = Interpreter::new();
     for path in paths {
         let file_name = path
@@ -111,8 +125,29 @@ fn run_interpreter(
             .expect("Couldn't get file_name")
             .to_owned();
 
-        if let Some(captures) = regex.captures(&file_name) {
-            let result = interpreter.execute(&captures, regex.capture_names(), node.clone());
+        let mut captures: HashMap<String, &str> = HashMap::new();
+        let mut count = 0;
+        let start = if global { 1 } else { 0 };
+        for cap in regex.captures_iter(&file_name) {
+            for name in regex.capture_names().flatten() {
+                let cap = cap.name(name);
+                if cap.is_none() {
+                    continue;
+                }
+
+                captures.insert(name.to_owned(), cap.unwrap().as_str());
+            }
+
+            for i in start..cap.len() {
+                if let Some(c) = cap.get(i) {
+                    captures.insert(count.to_string(), c.as_str());
+                    count += 1;
+                }
+            }
+        }
+
+        if !captures.is_empty() {
+            let result = interpreter.execute(&captures, node.clone());
 
             if let Err(e) = result {
                 println!("{}", e.message());
@@ -136,7 +171,7 @@ fn rename_file(path: &str, old_name: &str, new_name: &str) {
     rename(path.to_owned() + old_name, path.to_owned() + new_name).expect("Couldn't rename file");
 }
 
-fn find_duplicates(file_rename: &HashMap<String, String>) -> bool {
+fn find_duplicates(file_rename: &IndexMap<String, String>) -> bool {
     for (k, v) in file_rename.iter() {
         for (k2, v2) in file_rename.iter() {
             if v == v2 && k != k2 {

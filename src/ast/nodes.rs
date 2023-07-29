@@ -1,5 +1,5 @@
 use crate::{
-    ast::interpreter::Interpreter, errors::Error, lib::object_type::ObjectType,
+    ast::interpreter::Interpreter, errors::Error, library::object_type::ObjectType,
     tokenizer::token::TokenType,
 };
 use std::{fmt::Debug, rc::Rc};
@@ -22,6 +22,14 @@ pub struct NodeBlock {
 }
 
 #[derive(Debug)]
+pub struct NodeFor {
+    pub identifer: Rc<dyn ExecutableNode>,
+    pub from: Rc<dyn ExecutableNode>,
+    pub to: Rc<dyn ExecutableNode>,
+    pub content: Rc<dyn ExecutableNode>,
+}
+
+#[derive(Debug)]
 pub struct NodeCondition {
     pub operator: TokenType,
     pub left: Rc<dyn ExecutableNode>,
@@ -37,12 +45,14 @@ pub struct NodeContent {
 #[derive(Debug)]
 pub struct NodeIdentifer {
     pub content: String,
+    pub use_for_name: bool,
 }
 
 #[derive(Debug)]
 pub struct NodeKeyword {
     pub keyword: TokenType,
     pub content: Rc<dyn ExecutableNode>,
+    pub options: Vec<Rc<dyn ExecutableNode>>,
 }
 
 #[derive(Debug)]

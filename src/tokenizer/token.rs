@@ -16,10 +16,15 @@ pub enum TokenType {
     Multiplication,
     Power,
     Log,
+    Modulo,
 
     ParentL,
     ParentR,
+    BracketL,
+    BracketR,
 
+    Dot,
+    Comma,
     Semicolon,
     QuestionMark,
     ExclamationMark,
@@ -36,6 +41,8 @@ pub enum TokenType {
 
     KeyNumber,
     KeyString,
+    KeyFor,
+    KeyIn,
 }
 
 #[derive(Clone)]

@@ -1,4 +1,4 @@
-[![Rust](https://github.com/Zelak312/nora/actions/workflows/rust_build_test.yml/badge.svg?branch=dev)](https://github.com/Zelak312/nora/actions/workflows/rust_build_test.yml)
+[![Rust](https://github.com/Zelak312/nora_rename/actions/workflows/rust_build_test.yml/badge.svg?branch=dev)](https://github.com/Zelak312/nora_rename/actions/workflows/rust_build_test.yml)
 
 # Documentation
 
@@ -15,7 +15,13 @@ Any suggestion is appricated (using github issues)
 
 # How to install
 
-Comming soon
+## Using cargo
+
+```
+cargo install nora_rename
+```
+
+Other methods comming soon
 
 # Usage
 
@@ -33,6 +39,7 @@ nora [OPTIONS] <INPUT> <OUTPUT>
 | `-s` \| `--skip`         | Skip the renaming preview and directly rename files |
 | `-V` \| `--version`      | Print version information                           |
 | `-p` \| `--pretty_print` | Pretty print the output for easier reading          |
+| `-g` \| `--global`       | Removes the global match from the captures          |
 
 ## Input
 
@@ -59,6 +66,7 @@ An interpreted block starts with `[` and ends with `]` in this case the interpre
 
 The interpreted block can have the following expressions
 
+-   [For loop](#for-loop)
 -   [Ternary expression](#ternary-expression)
 -   [Math expression](#math-expression)
 -   [String operation](#string-operation)
@@ -67,6 +75,22 @@ The interpreted block can have the following expressions
 -   [Number conversion](#number-conversion)
 
 ---
+
+# For loop
+
+Example:
+
+```
+[for x in 0.#cap_count { #x }]
+```
+
+This will go from 0 to `#cap_count` which is evaluated as the number of caputre
+
+`#x` can be used to get the caputr group with the value of x
+
+if x is 0 it will get `#0` (first caputre group) etc
+
+Note: This will often be used with the -g option because otherwise the whole caputres will also be included which will messed up things
 
 # Ternary expression
 
@@ -109,7 +133,7 @@ currently supported operations are `+`, `-`, `*`, `/`, `**`, `//`, `(`, `)`
 `**`: Power opertaor
 `//`: Log operator
 
-It is important to note that math expressions will only be interpreted as mathematical expressions when the left paramter is a number (like JavaScript would)
+It is important to note that math expressions will only be interpreted as mathematical expressions when the left paramter is a number
 
 For example:
 
@@ -135,7 +159,7 @@ Example:
 ["hello " + "world"]
 ```
 
-It is important to note that concatenation of strings will only occur when the left paramter is a string (like JavaScript would)
+It is important to note that concatenation of strings will only occur when the left paramter is a string
 
 For example:
 
@@ -199,7 +223,9 @@ when using a regex, the capture groups can be used in interpreted block like the
 
 The number represent the capture groups in order.
 
-it is important to note that `#0` the whole regex capture so the first capture group is `#1`
+it is important to note that `#0` is the whole regex capture so to use the first capture group, it will be `#1`
+
+that is on is only true if the global parameter is false, if global is true, #0 will be the first capture group
 
 ## Using named capture groups
 
@@ -234,23 +260,50 @@ Example:
 ```
 
 Transform the expression between the parenthese to a number
+The second argument can also control the number of decimal
+
+```
+[number(10.532, 2)]
+```
+
+Will result in 10.53
 
 # Example Usage
 
-Rename files from (number).txt to (number).mkv
+## Rename files from (number).txt to (number).mkv
 
 ```
 nora '(\d+)\..*' '[#1].mkv'
 ```
 
-Rename files from (number).txt to (number + 10).txt
+## Rename files from (number).txt to (number + 10).txt
 
 ```
 nora '(\d+)\..*' '[number(#1) + 10].txt'
 ```
 
-Rename files from (number>.txt to (number + 10).txt only if (number) is 0 if not leave it as (number).txt
+## Rename files from (number>.txt to (number + 10).txt only if (number) is 0 if not leave it as (number).txt
 
 ```
 nora '(\d+)\..*' '[#1 == 0 ? number(#1) + 10 : #1].txt'
 ```
+
+## Remove spaces in file name
+
+for example if we have this file name `1 2 3 4 5.txt`
+
+if we want to remove the spaces, we can use a loop and the -g option to remove the whole captures
+
+with this regex `([^\s]+)\s?([^\s]+)?` it matches all but spaces so we can loop the number of capture group given by `#cap_count` to connect them back together
+
+You can look here to see how the regex works https://www.debuggex.com/r/9bUMa4OHscE8TyvR
+
+```
+nora -g '([^\s]+)\s?([^\s]+)?' '[for x in 0.#cap_count { #x }]'
+```
+
+The loop will loop from 0 to #cap_count which will be the number of found captures
+
+`#x` will get the content of the capture group for the value of x so if x is 0 it will be like doing `#0` etc
+
+this will result in the file being renamed to `12345.txt`
