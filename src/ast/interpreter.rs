@@ -1,7 +1,5 @@
 use std::{collections::HashMap, rc::Rc};
 
-use regex::{CaptureNames, Captures};
-
 use crate::errors::BasicError;
 use crate::library::types::boolean::NBoolean;
 use crate::library::types::number::NNumber;
@@ -29,33 +27,23 @@ impl Interpreter {
             .insert(String::from("#count"), self.count.to_string());
     }
 
-    fn insert_captures(&mut self, captures: &Captures, names: CaptureNames) {
-        for name in names.flatten() {
-            let cap = captures.name(name);
-            if cap.is_none() {
-                continue;
-            }
-
-            self.scope
-                .insert(name.to_owned(), cap.unwrap().as_str().to_owned());
-        }
-
-        for i in 0..captures.len() {
-            if let Some(cap) = captures.get(i) {
-                self.scope
-                    .insert(String::from("#") + &i.to_string(), cap.as_str().to_string());
+    fn insert_captures(&mut self, captures: &HashMap<String, &str>) {
+        for (key, val) in captures {
+            if key.parse::<i8>().is_ok() {
+                self.scope.insert(String::from("#") + key, val.to_string());
+            } else {
+                self.scope.insert(key.to_owned(), val.to_string());
             }
         }
     }
 
     pub fn execute(
         &mut self,
-        captures: &Captures,
-        names: CaptureNames,
+        captures: &HashMap<String, &str>,
         node: Rc<dyn nodes::ExecutableNode>,
     ) -> Result<ObjectType, Box<dyn Error>> {
         self.insert_special_vars();
-        self.insert_captures(captures, names);
+        self.insert_captures(captures);
         let res = node.execute(self);
         self.count += 1;
         res

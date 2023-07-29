@@ -39,6 +39,7 @@ nora [OPTIONS] <INPUT> <OUTPUT>
 | `-s` \| `--skip`         | Skip the renaming preview and directly rename files |
 | `-V` \| `--version`      | Print version information                           |
 | `-p` \| `--pretty_print` | Pretty print the output for easier reading          |
+| `-g` \| `--global`       | Removes the global match from the captures          |
 
 ## Input
 
@@ -205,7 +206,9 @@ when using a regex, the capture groups can be used in interpreted block like the
 
 The number represent the capture groups in order.
 
-it is important to note that `#0` the whole regex capture so the first capture group is `#1`
+it is important to note that `#0` is the whole regex capture so to use the first capture group, it will be `#1`
+
+that is on is only true if the global parameter is false, if global is true, #0 will be the first capture group
 
 ## Using named capture groups
 

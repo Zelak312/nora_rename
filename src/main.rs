@@ -5,6 +5,7 @@ mod tokenizer;
 mod utils;
 
 use std::{
+    collections::HashMap,
     fs::{read_dir, rename},
     io,
     process::exit,
@@ -42,6 +43,11 @@ struct Cli {
     /// Case sensitive regex
     #[clap(short, long)]
     case_sensitive: bool,
+
+    /// Global regex
+    /// Removes the global match from the captures
+    #[clap(short, long)]
+    global: bool,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -63,7 +69,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 
     let node = node_result.unwrap();
-    let file_rename = run_interpreter(path, &regex, &node);
+    let file_rename = run_interpreter(path, &regex, &node, cli.global);
     if file_rename.is_empty() {
         println!("No files to rename, exiting");
         exit(1);
@@ -106,6 +112,7 @@ fn run_interpreter(
     path: &str,
     regex: &Regex,
     node: &Rc<dyn ExecutableNode>,
+    global: bool,
 ) -> IndexMap<String, String> {
     let paths = read_dir(path).expect("Couldn't read dir");
     let mut file_rename = IndexMap::new();
@@ -118,8 +125,29 @@ fn run_interpreter(
             .expect("Couldn't get file_name")
             .to_owned();
 
-        if let Some(captures) = regex.captures(&file_name) {
-            let result = interpreter.execute(&captures, regex.capture_names(), node.clone());
+        let mut captures: HashMap<String, &str> = HashMap::new();
+        let mut count = 0;
+        let start = if global { 1 } else { 0 };
+        for cap in regex.captures_iter(&file_name) {
+            for name in regex.capture_names().flatten() {
+                let cap = cap.name(name);
+                if cap.is_none() {
+                    continue;
+                }
+
+                captures.insert(name.to_owned(), cap.unwrap().as_str());
+            }
+
+            for i in start..cap.len() {
+                if let Some(c) = cap.get(i) {
+                    captures.insert(count.to_string(), c.as_str());
+                    count += 1;
+                }
+            }
+        }
+
+        if !captures.is_empty() {
+            let result = interpreter.execute(&captures, node.clone());
 
             if let Err(e) = result {
                 println!("{}", e.message());
