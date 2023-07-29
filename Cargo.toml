@@ -1,15 +1,13 @@
 [package]
 name = "nora_rename"
 description = "Command line utility for renaming files in batch using regex with advanced control"
-version = "0.1.3"
+version = "1.0.0"
 edition = "2021"
 authors = ["Zelak <zelak312@gmail.com>"]
 repository = "https://github.com/Zelak312/nora"
 license = "MIT"
 readme = "README.md"
-exclude = [
-    ".github/*",
-]
+exclude = [".github/*"]
 
 [[bin]]
 name = "nora"
