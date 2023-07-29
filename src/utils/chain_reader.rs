@@ -49,7 +49,7 @@ where
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         f.debug_struct("StringReader")
             .field("pos", &self.pos)
+            .field("items", &self.items)
             .finish()
-        // .field("items", &self.items)
     }
 }
