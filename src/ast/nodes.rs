@@ -22,6 +22,14 @@ pub struct NodeBlock {
 }
 
 #[derive(Debug)]
+pub struct NodeFor {
+    pub identifer: Rc<dyn ExecutableNode>,
+    pub from: Rc<dyn ExecutableNode>,
+    pub to: Rc<dyn ExecutableNode>,
+    pub content: Rc<dyn ExecutableNode>,
+}
+
+#[derive(Debug)]
 pub struct NodeCondition {
     pub operator: TokenType,
     pub left: Rc<dyn ExecutableNode>,
@@ -37,6 +45,7 @@ pub struct NodeContent {
 #[derive(Debug)]
 pub struct NodeIdentifer {
     pub content: String,
+    pub use_for_name: bool,
 }
 
 #[derive(Debug)]

@@ -68,10 +68,14 @@ impl Parser {
         }
     }
 
-    pub fn parse_identifier(&mut self) -> Result<Rc<dyn nodes::ExecutableNode>, Box<dyn Error>> {
+    pub fn parse_identifier(
+        &mut self,
+        use_for_name: bool,
+    ) -> Result<Rc<dyn nodes::ExecutableNode>, Box<dyn Error>> {
         let token = self.base_parser.expect(TokenType::Identifier)?;
         Ok(Rc::new(nodes::NodeIdentifer {
             content: token.content,
+            use_for_name,
         }))
     }
 
@@ -100,7 +104,7 @@ impl Parser {
             return keyword;
         }
 
-        let identifer = self.parse_identifier();
+        let identifer = self.parse_identifier(false);
         if identifer.is_ok() {
             return identifer;
         }
@@ -235,9 +239,31 @@ impl Parser {
     }
 
     pub fn parse_inner_block(&mut self) -> Result<Rc<dyn nodes::ExecutableNode>, Box<dyn Error>> {
-        let node = self.parse_ternary()?;
+        let mut node = self.parse_for();
+        if node.is_err() {
+            node = self.parse_ternary();
+        }
+
         self.base_parser.expect(TokenType::BlockEnd)?;
-        Ok(node)
+        Ok(node?)
+    }
+
+    pub fn parse_for(&mut self) -> Result<Rc<dyn nodes::ExecutableNode>, Box<dyn Error>> {
+        self.base_parser.expect(TokenType::KeyFor)?;
+        let identifer = self.parse_identifier(true)?;
+        self.base_parser.expect(TokenType::KeyIn)?;
+        let from = self.parse_ternary()?;
+        self.base_parser.expect(TokenType::Dot)?;
+        let to = self.parse_ternary()?;
+        self.base_parser.expect(TokenType::BracketL)?;
+        let content = self.parse_ternary()?;
+        self.base_parser.expect(TokenType::BracketR)?;
+        Ok(Rc::new(nodes::NodeFor {
+            identifer,
+            from,
+            to,
+            content,
+        }))
     }
 
     pub fn parse_ternary(&mut self) -> Result<Rc<dyn nodes::ExecutableNode>, Box<dyn Error>> {

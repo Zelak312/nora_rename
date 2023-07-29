@@ -66,6 +66,7 @@ An interpreted block starts with `[` and ends with `]` in this case the interpre
 
 The interpreted block can have the following expressions
 
+-   [For loop](#for-loop)
 -   [Ternary expression](#ternary-expression)
 -   [Math expression](#math-expression)
 -   [String operation](#string-operation)
@@ -74,6 +75,22 @@ The interpreted block can have the following expressions
 -   [Number conversion](#number-conversion)
 
 ---
+
+# For loop
+
+Example:
+
+```
+[for x in 0.#cap_count { #x }]
+```
+
+This will go from 0 to `#cap_count` which is evaluated as the number of caputre
+
+`#x` can be used to get the caputr group with the value of x
+
+if x is 0 it will get `#0` (first caputre group) etc
+
+Note: This will often be used with the -g option because otherwise the whole caputres will also be included which will messed up things
 
 # Ternary expression
 
@@ -253,20 +270,40 @@ Will result in 10.53
 
 # Example Usage
 
-Rename files from (number).txt to (number).mkv
+## Rename files from (number).txt to (number).mkv
 
 ```
 nora '(\d+)\..*' '[#1].mkv'
 ```
 
-Rename files from (number).txt to (number + 10).txt
+## Rename files from (number).txt to (number + 10).txt
 
 ```
 nora '(\d+)\..*' '[number(#1) + 10].txt'
 ```
 
-Rename files from (number>.txt to (number + 10).txt only if (number) is 0 if not leave it as (number).txt
+## Rename files from (number>.txt to (number + 10).txt only if (number) is 0 if not leave it as (number).txt
 
 ```
 nora '(\d+)\..*' '[#1 == 0 ? number(#1) + 10 : #1].txt'
 ```
+
+## Remove spaces in file name
+
+for example if we have this file name `1 2 3 4 5.txt`
+
+if we want to remove the spaces, we can use a loop and the -g option to remove the whole captures
+
+with this regex `([^\s]+)\s?([^\s]+)?` it matches all but spaces so we can loop the number of capture group given by `#cap_count` to connect them back together
+
+You can look here to see how the regex works https://www.debuggex.com/r/9bUMa4OHscE8TyvR
+
+```
+nora -g '([^\s]+)\s?([^\s]+)?' '[for x in 0.#cap_count { #x }]'
+```
+
+The loop will loop from 0 to #cap_count which will be the number of found captures
+
+`#x` will get the content of the capture group for the value of x so if x is 0 it will be like doing `#0` etc
+
+this will result in the file being renamed to `12345.txt`

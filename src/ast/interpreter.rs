@@ -12,6 +12,7 @@ use super::nodes;
 pub struct Interpreter {
     scope: HashMap<String, String>,
     count: i32,
+    cap_count: usize,
 }
 
 impl Interpreter {
@@ -19,12 +20,15 @@ impl Interpreter {
         Self {
             scope: HashMap::new(),
             count: 0,
+            cap_count: 0,
         }
     }
 
     fn insert_special_vars(&mut self) {
         self.scope
             .insert(String::from("#count"), self.count.to_string());
+        self.scope
+            .insert(String::from("#cap_count"), self.cap_count.to_string());
     }
 
     fn insert_captures(&mut self, captures: &HashMap<String, &str>) {
@@ -37,13 +41,26 @@ impl Interpreter {
         }
     }
 
+    pub fn mutate_scope(&mut self, key: String, val: String) -> Result<(), Box<dyn Error>> {
+        if key.starts_with("#") {
+            return Err(BasicError::new(format!(
+                "Cannot mutate special variable: {}",
+                key
+            )));
+        }
+
+        self.scope.insert(key, val);
+        Ok(())
+    }
+
     pub fn execute(
         &mut self,
         captures: &HashMap<String, &str>,
         node: Rc<dyn nodes::ExecutableNode>,
     ) -> Result<ObjectType, Box<dyn Error>> {
-        self.insert_special_vars();
+        self.cap_count = captures.len();
         self.insert_captures(captures);
+        self.insert_special_vars();
         let res = node.execute(self);
         self.count += 1;
         res
@@ -101,6 +118,26 @@ impl nodes::ExecutableNode for nodes::NodeBlock {
     }
 }
 
+impl nodes::ExecutableNode for nodes::NodeFor {
+    fn execute(&self, interpreter: &mut Interpreter) -> Result<ObjectType, Box<dyn Error>> {
+        let identifier = self.identifer.execute(interpreter)?.into_string()?;
+        let from = self.from.execute(interpreter)?.into_number()?;
+        let to = self.to.execute(interpreter)?.into_number()?;
+        let mut inner_value = String::new();
+
+        for i in (from.inner_value as i32)..(to.inner_value as i32) {
+            interpreter.mutate_scope(identifier.inner_value.clone(), i.to_string())?;
+            inner_value += &self
+                .content
+                .execute(interpreter)?
+                .into_string()?
+                .inner_value;
+        }
+
+        Ok(ObjectType::NString(NString { inner_value }))
+    }
+}
+
 impl nodes::ExecutableNode for nodes::NodeContent {
     fn execute(&self, interpreter: &mut Interpreter) -> Result<ObjectType, Box<dyn Error>> {
         let mut inner_value = String::from(&self.content);
@@ -116,12 +153,28 @@ impl nodes::ExecutableNode for nodes::NodeIdentifer {
     fn execute(&self, i: &mut Interpreter) -> Result<ObjectType, Box<dyn Error>> {
         // TODO: should make this a linePointingError
         // Need to implement nodes start and length for this to happen
-        let capture = i
-            .scope
-            .get(&self.content)
-            .ok_or_else(|| BasicError::new(format!("Couldn't find variable: {}", &self.content)))?;
+        if self.use_for_name {
+            return Ok(ObjectType::NString(NString {
+                inner_value: self.content.clone(),
+            }));
+        }
+
+        let mut capture = i.scope.get(&self.content);
+        if capture.is_none() {
+            let removed_hashtag = self.content.trim_start_matches("#");
+            if self.content.starts_with("#") && i.scope.contains_key(removed_hashtag) {
+                capture = i
+                    .scope
+                    .get(&("#".to_owned() + i.scope.get(removed_hashtag).unwrap()));
+            }
+        }
+
         Ok(ObjectType::NString(NString {
-            inner_value: capture.to_owned(),
+            inner_value: capture
+                .ok_or_else(|| {
+                    BasicError::new(format!("Couldn't find variable: {}", &self.content))
+                })?
+                .to_owned(),
         }))
     }
 }

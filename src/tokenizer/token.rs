@@ -20,7 +20,10 @@ pub enum TokenType {
 
     ParentL,
     ParentR,
+    BracketL,
+    BracketR,
 
+    Dot,
     Comma,
     Semicolon,
     QuestionMark,
@@ -38,6 +41,8 @@ pub enum TokenType {
 
     KeyNumber,
     KeyString,
+    KeyFor,
+    KeyIn,
 }
 
 #[derive(Clone)]

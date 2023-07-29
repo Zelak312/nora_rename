@@ -30,6 +30,9 @@ impl Lexer {
             '%' => Some(TokenType::Modulo),
             '(' => Some(TokenType::ParentL),
             ')' => Some(TokenType::ParentR),
+            '{' => Some(TokenType::BracketL),
+            '}' => Some(TokenType::BracketR),
+            '.' => Some(TokenType::Dot),
             ',' => Some(TokenType::Comma),
             ':' => Some(TokenType::Semicolon),
             '?' => Some(TokenType::QuestionMark),
@@ -118,6 +121,11 @@ impl Lexer {
                 continue;
             }
 
+            let next = self.chain_reader.get_next();
+            if (current == '.') && (next.is_none() || !next.unwrap().is_numeric()) {
+                break;
+            }
+
             if !current.is_numeric() && current != '.' {
                 break;
             }
@@ -176,6 +184,8 @@ impl Lexer {
         let _type = match s {
             "number" => Some(TokenType::KeyNumber),
             "string" => Some(TokenType::KeyString),
+            "for" => Some(TokenType::KeyFor),
+            "in" => Some(TokenType::KeyIn),
             _ => None,
         };
 
