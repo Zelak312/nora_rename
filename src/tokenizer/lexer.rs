@@ -6,7 +6,7 @@ use super::token::{Token, TokenType};
 
 pub struct Lexer {
     chain_reader: ChainReader<char>,
-    in_block: bool,
+    in_block: i8,
 }
 
 impl Lexer {
@@ -14,7 +14,7 @@ impl Lexer {
         let chars = code.chars().collect::<Vec<char>>();
         Self {
             chain_reader: ChainReader::new(chars),
-            in_block: false,
+            in_block: 0,
         }
     }
 
@@ -205,9 +205,9 @@ impl Lexer {
             let mut unvariable = false;
             if let Some(found_token) = self.handle_special(current) {
                 if found_token.r#type == TokenType::BlockStart {
-                    self.in_block = true;
+                    self.in_block += 1;
                 } else if found_token.r#type == TokenType::BlockEnd {
-                    self.in_block = false;
+                    self.in_block -= 1;
                 }
 
                 token_o = Some(found_token);
@@ -223,7 +223,7 @@ impl Lexer {
                 {
                     token_o = Some(keyword)
                 }
-            } else if !self.in_block {
+            } else if self.in_block == 0 {
                 unvariable = true;
                 raw += &current.to_string();
                 self.chain_reader.advance();
