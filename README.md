@@ -299,11 +299,15 @@ with this regex `([^\s]+)\s?([^\s]+)?` it matches all but spaces so we can loop 
 You can look here to see how the regex works https://www.debuggex.com/r/9bUMa4OHscE8TyvR
 
 ```
-nora -g '([^\s]+)\s?([^\s]+)?' '[for x in 0.#cap_count { #x }]'
+nora -g '([^\s]+)\s?([^\s]+)?' '[for x in 0.#cap_count { #[x] }]'
 ```
 
 The loop will loop from 0 to #cap_count which will be the number of found captures
 
-`#x` will get the content of the capture group for the value of x so if x is 0 it will be like doing `#0` etc
+`#[x]` will get the content of the capture group for the value of x so if x is 0 it will be like doing `#0` etc
 
 this will result in the file being renamed to `12345.txt`
+
+if x doesn't exist or when it tries to index a variable with #0 for example and it doesn't exist it will produce an error
+
+it can be made optional with a `?` like so `#[x?]`
