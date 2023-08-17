@@ -49,6 +49,12 @@ pub struct NodeIdentifer {
 }
 
 #[derive(Debug)]
+pub struct NodeIdentiferIndexer {
+    pub index: String,
+    pub optional: bool,
+}
+
+#[derive(Debug)]
 pub struct NodeKeyword {
     pub keyword: TokenType,
     pub content: Rc<dyn ExecutableNode>,

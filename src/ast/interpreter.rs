@@ -159,22 +159,47 @@ impl nodes::ExecutableNode for nodes::NodeIdentifer {
             }));
         }
 
-        let mut capture = i.scope.get(&self.content);
-        if capture.is_none() {
-            let removed_hashtag = self.content.trim_start_matches("#");
-            if self.content.starts_with("#") && i.scope.contains_key(removed_hashtag) {
-                capture = i
-                    .scope
-                    .get(&("#".to_owned() + i.scope.get(removed_hashtag).unwrap()));
+        let capture = i
+            .scope
+            .get(&self.content)
+            .ok_or_else(|| BasicError::new(format!("Couldn't find variable: {}", &self.content)))?;
+        Ok(ObjectType::NString(NString {
+            inner_value: capture.to_owned(),
+        }))
+    }
+}
+
+impl nodes::ExecutableNode for nodes::NodeIdentiferIndexer {
+    fn execute(&self, i: &mut Interpreter) -> Result<ObjectType, Box<dyn Error>> {
+        // TODO: should make this a linePointingError
+        // Need to implement nodes start and length for this to happen
+        let Some(mut indexer) = i.scope.get(&self.index) else {
+            if self.optional {
+                return Ok(ObjectType::NString(NString {
+                    inner_value: String::new(),
+                }));
             }
-        }
+
+            return Err(BasicError::new(format!("Indexer not found: {}", &self.index)));
+        };
+
+        let formated = format!("#{}", indexer);
+        indexer = &formated;
+        let Some(capture) = i.scope.get(indexer) else {
+            if self.optional {
+                return Ok(ObjectType::NString(NString {
+                    inner_value: String::new(),
+                }));
+            }
+
+            return Err(BasicError::new(format!(
+                "Couldn't find variable: {}, with indexer: {}",
+                &indexer, &self.index
+            )));
+        };
 
         Ok(ObjectType::NString(NString {
-            inner_value: capture
-                .ok_or_else(|| {
-                    BasicError::new(format!("Couldn't find variable: {}", &self.content))
-                })?
-                .to_owned(),
+            inner_value: capture.to_owned(),
         }))
     }
 }

@@ -73,6 +73,21 @@ impl Parser {
         use_for_name: bool,
     ) -> Result<Rc<dyn nodes::ExecutableNode>, Box<dyn Error>> {
         let token = self.base_parser.expect(TokenType::Identifier)?;
+        if token.content == "#" {
+            // May be an Indexer
+            let index = self.base_parser.expect(TokenType::BlockStart);
+            if index.is_ok() {
+                // it is an indexer
+                let index = self.base_parser.expect(TokenType::Identifier)?;
+                let optional = self.base_parser.expect(TokenType::QuestionMark);
+                self.base_parser.expect(TokenType::BlockEnd)?;
+                return Ok(Rc::new(nodes::NodeIdentiferIndexer {
+                    index: index.content,
+                    optional: optional.is_ok(),
+                }));
+            }
+        }
+
         Ok(Rc::new(nodes::NodeIdentifer {
             content: token.content,
             use_for_name,
