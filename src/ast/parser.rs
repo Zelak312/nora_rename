@@ -260,7 +260,7 @@ impl Parser {
         }
 
         self.base_parser.expect(TokenType::BlockEnd)?;
-        Ok(node?)
+        node
     }
 
     pub fn parse_for(&mut self) -> Result<Rc<dyn nodes::ExecutableNode>, Box<dyn Error>> {
