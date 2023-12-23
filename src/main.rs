@@ -8,6 +8,7 @@ use std::{
     collections::HashMap,
     fs::{read_dir, rename},
     io,
+    path::PathBuf,
     process::exit,
     rc::Rc,
 };
@@ -17,6 +18,7 @@ use clap::Parser;
 use errors::Error;
 use indexmap::IndexMap;
 use regex::{Regex, RegexBuilder};
+use walkdir::WalkDir;
 
 use crate::{
     ast::{interpreter::Interpreter, parser},
@@ -51,8 +53,18 @@ struct Cli {
 
     /// Path
     /// Change the base directory to look for files to rename
-    #[clap(short = 'd', long)]
+    #[clap(short = 'l', long)]
     path: Option<String>,
+
+    /// Recursive
+    /// Recursively get files in directory
+    #[clap(short, long)]
+    recursive: bool,
+
+    /// Depth limit
+    /// Specify a depth limit, if not, unlimited (used with -r)
+    #[clap(short, long)]
+    depth_limit: Option<usize>,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -74,7 +86,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 
     let node = node_result.unwrap();
-    let file_rename = run_interpreter(path, &regex, &node, cli.global);
+    let file_rename = run_interpreter(
+        path,
+        &regex,
+        &node,
+        cli.global,
+        cli.recursive,
+        cli.depth_limit,
+    );
     if file_rename.is_empty() {
         println!("No files to rename, exiting");
         exit(1);
@@ -118,14 +137,37 @@ fn run_interpreter(
     regex: &Regex,
     node: &Rc<dyn ExecutableNode>,
     global: bool,
+    recursive: bool,
+    depth_limit: Option<usize>,
 ) -> IndexMap<String, String> {
-    let paths = read_dir(path).expect("Couldn't read dir");
+    let paths: Vec<PathBuf> = if recursive {
+        let walkdir_iter = if depth_limit.is_some() {
+            WalkDir::new(path)
+                .max_depth(depth_limit.unwrap())
+                .into_iter()
+        } else {
+            WalkDir::new(path).into_iter()
+        };
+
+        walkdir_iter
+            .filter_map(|e| e.ok()) // Filter out Err values
+            .filter(|e| e.file_type().is_file()) // Keep only files
+            .map(|e| e.into_path()) // Convert DirEntry to PathBuf
+            .collect()
+    } else {
+        read_dir(path)
+            .expect("Couldn't read dir")
+            .filter_map(|e| e.ok()) // Filter out Err values
+            .map(|e| e.path()) // Extract PathBuf
+            .collect()
+    };
+
     let mut file_rename = IndexMap::new();
     let mut interpreter = Interpreter::new();
     for path in paths {
         let file_name = path
-            .expect("Couldn't read file")
             .file_name()
+            .expect("Couldn't get file_name")
             .to_str()
             .expect("Couldn't get file_name")
             .to_owned();
