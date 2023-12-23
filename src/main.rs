@@ -141,10 +141,8 @@ fn run_interpreter(
     depth_limit: Option<usize>,
 ) -> IndexMap<String, String> {
     let paths: Vec<PathBuf> = if recursive {
-        let walkdir_iter = if depth_limit.is_some() {
-            WalkDir::new(path)
-                .max_depth(depth_limit.unwrap())
-                .into_iter()
+        let walkdir_iter = if let Some(depth_limit_un) = depth_limit {
+            WalkDir::new(path).max_depth(depth_limit_un).into_iter()
         } else {
             WalkDir::new(path).into_iter()
         };
