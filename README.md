@@ -13,6 +13,10 @@ Nora is a command line utility for renaming files in batch using regex with adva
 It is using a custom language created only for this purpose.
 Any suggestion is appricated (using github issues)
 
+**If you want to support my work**
+
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/zelak)
+
 # How to install
 
 ## Using cargo
