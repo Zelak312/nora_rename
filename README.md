@@ -37,13 +37,14 @@ nora [OPTIONS] <INPUT> <OUTPUT>
 
 ## Options
 
-| commands                 | description                                         |
-| ------------------------ | --------------------------------------------------- |
-| `-h` \| `--help`         | Print help information                              |
-| `-s` \| `--skip`         | Skip the renaming preview and directly rename files |
-| `-V` \| `--version`      | Print version information                           |
-| `-p` \| `--pretty_print` | Pretty print the output for easier reading          |
-| `-g` \| `--global`       | Removes the global match from the captures          |
+| commands                 | description                                           |
+| ------------------------ | ----------------------------------------------------- |
+| `-h` \| `--help`         | Print help information                                |
+| `-s` \| `--skip`         | Skip the renaming preview and directly rename files   |
+| `-V` \| `--version`      | Print version information                             |
+| `-p` \| `--pretty_print` | Pretty print the output for easier reading            |
+| `-g` \| `--global`       | Removes the global match from the captures            |
+| `-d` \| `--path`         | Change the base directory to look for files to rename |
 
 ## Input
 

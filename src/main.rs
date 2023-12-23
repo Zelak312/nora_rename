@@ -48,6 +48,11 @@ struct Cli {
     /// Removes the global match from the captures
     #[clap(short, long)]
     global: bool,
+
+    /// Path
+    /// Change the base directory to look for files to rename
+    #[clap(short = 'd', long)]
+    path: Option<String>,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -56,8 +61,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         .case_insensitive(!cli.case_sensitive)
         .build()
         .expect("Invalid regex");
-    let path = "./";
 
+    let path = cli.path.as_deref().unwrap_or("./");
     let mut lex = lexer::Lexer::new(cli.output.clone());
     let tokens = lex.tokenize();
 
