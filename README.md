@@ -9,9 +9,13 @@
 
 # What is Nora?
 
-Nora is a command line utility for renaming files in batch using regex with advanced control.
-It is using a custom language created only for this purpose.
+Nora is a command line utility for renaming multiple files at the same time using regex with advanced control.
+It uses a simple custom language created only for this purpose.
 Any suggestion is appricated (using github issues)
+
+**If you want to support my work**
+
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/zelak)
 
 # How to install
 
@@ -33,13 +37,16 @@ nora [OPTIONS] <INPUT> <OUTPUT>
 
 ## Options
 
-| commands                 | description                                         |
-| ------------------------ | --------------------------------------------------- |
-| `-h` \| `--help`         | Print help information                              |
-| `-s` \| `--skip`         | Skip the renaming preview and directly rename files |
-| `-V` \| `--version`      | Print version information                           |
-| `-p` \| `--pretty_print` | Pretty print the output for easier reading          |
-| `-g` \| `--global`       | Removes the global match from the captures          |
+| commands                 | description                                             |
+| ------------------------ | ------------------------------------------------------- |
+| `-h` \| `--help`         | Print help information                                  |
+| `-s` \| `--skip`         | Skip the renaming preview and directly rename files     |
+| `-V` \| `--version`      | Print version information                               |
+| `-p` \| `--pretty_print` | Pretty print the output for easier reading              |
+| `-g` \| `--global`       | Removes the global match from the captures              |
+| `-l` \| `--path`         | Change the base directory to look for files to rename   |
+| `-r` \| `--recursive`    | Recursively get files in directory                      |
+| `-d` \| `--depth_limit`  | Specify a depth limit, if not, unlimited (used with -r) |
 
 ## Input
 

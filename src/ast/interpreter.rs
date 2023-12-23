@@ -42,7 +42,7 @@ impl Interpreter {
     }
 
     pub fn mutate_scope(&mut self, key: String, val: String) -> Result<(), Box<dyn Error>> {
-        if key.starts_with("#") {
+        if key.starts_with('#') {
             return Err(BasicError::new(format!(
                 "Cannot mutate special variable: {}",
                 key
@@ -180,7 +180,10 @@ impl nodes::ExecutableNode for nodes::NodeIdentiferIndexer {
                 }));
             }
 
-            return Err(BasicError::new(format!("Indexer not found: {}", &self.index)));
+            return Err(BasicError::new(format!(
+                "Indexer not found: {}",
+                &self.index
+            )));
         };
 
         let formated = format!("#{}", indexer);

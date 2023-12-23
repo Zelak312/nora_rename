@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 
 pub fn is_identifer(c: char) -> bool {
-    c.is_alphabetic() || c == '_' || c == '#'
+    c.is_alphabetic() || c.is_alphanumeric() || c == '_' || c == '#'
 }
 
 pub fn join_vec<T>(v: Vec<T>, sep: &str) -> String
