@@ -9,8 +9,8 @@
 
 # What is Nora?
 
-Nora is a command line utility for renaming files in batch using regex with advanced control.
-It is using a custom language created only for this purpose.
+Nora is a command line utility for renaming multiple files at the same time using regex with advanced control.
+It uses a simple custom language created only for this purpose.
 Any suggestion is appricated (using github issues)
 
 **If you want to support my work**
