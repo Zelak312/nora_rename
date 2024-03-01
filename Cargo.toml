@@ -18,4 +18,4 @@ clap = { version = "4.4.7", features = ["derive"] }
 indexmap = "2.1.0"
 owo-colors = "4.0.0"
 regex = "1.10.2"
-walkdir = "2.4.0"
+walkdir = "2.5.0"
